@@ -3,8 +3,10 @@ import useLugares from "../hooks/useLugares";
 import SearchBar from "./components/Lugares/SearchBar";
 import Cards from "./components/Lugares/Cards";
 import fondoLugares from "../assets/portadaProyecto.webp";
+import useAuthRedirect from "../hooks/useAuthRedirect";
 
 function Lugares() {
+  useAuthRedirect();
   const {
     lugares,
     loading,
