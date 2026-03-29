@@ -1,7 +1,23 @@
 import React from "react";
+import useLugares from "../hooks/useLugares";
+import SearchBar from "./components/Lugares/SearchBar";
+import Cards from "./components/Lugares/Cards";
 import fondoLugares from "../assets/portadaProyecto.webp";
 
 function Lugares() {
+  const {
+    lugares,
+    loading,
+    error,
+    setSearchQuery,
+    setSelectedMunicipioId,
+    selectedMunicipioId,
+    setShowModal,
+    setLugarAEliminar,
+  } = useLugares();
+
+  const storedUser = JSON.parse(localStorage.getItem("usuario"));
+
   return (
     <>
       <main className="min-h-screen bg-white pt-20">
@@ -26,12 +42,28 @@ function Lugares() {
           </div>
         </section>
 
-        <div className="relative z-30 flex justify-center px-6 -mt-12 md:-mt-20"></div>
+        <div className="relative z-30 flex justify-center px-6 -mt-12 md:-mt-20">
+          <SearchBar
+            municipios={municipios}
+            onSearchSubmit={setSearchQuery}
+            onMunicipioChange={setSelectedMunicipioId}
+            currentMunicipioId={selectedMunicipioId}
+          />
+        </div>
 
         <div className="w-full pb-20 pt-16 md:pt-24 flex flex-col items-center">
           {error && (
             <p className="text-red-500 text-center font-bold mb-8">{error}</p>
           )}
+
+          <Cards
+            user={storedUser}
+            lugares={lugares}
+            onDelete={(id) => {
+              setLugarAEliminar(id);
+              setShowModal(true);
+            }}
+          />
 
           {!loading && lugares.length === 0 && (
             <div className="text-center py-20 animate-fade-in">
