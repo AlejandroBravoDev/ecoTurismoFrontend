@@ -1,5 +1,6 @@
 import React from "react";
 import useAuthRedirect from "../hooks/useAuthRedirect";
+import SearchBar from "./components/Hospedajes/SearchBar";
 import fondoHospedajes from "../assets/destinosDestacados3.webp";
 function Hospedajes() {
   useAuthRedirect();
@@ -26,6 +27,14 @@ function Hospedajes() {
             </p>
           </div>
         </section>
+        <div className="relative z-30 flex justify-center px-6 -mt-12 md:-mt-20">
+          <SearchBar
+            municipios={municipios}
+            onSearchSubmit={setSearchQuery}
+            onMunicipioChange={setSelectedMunicipioId}
+            currentMunicipioId={selectedMunicipioId}
+          />
+        </div>
         <div className="w-full pb-20 pt-16 md:pt-24 flex flex-col items-center">
           {error && <p className="text-red-500 font-bold mb-8">{error}</p>}
         </div>
