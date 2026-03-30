@@ -8,10 +8,12 @@ import Lugares from "./pages/Lugares.jsx";
 import Hospedajes from "./pages/Hospedajes.jsx";
 import VerLugares from "./pages/VerLugares.jsx";
 import PerfilUser from "./pages/PerfilUser.jsx";
+import Home from "./pages/Home.jsx";
 
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<Home />} />
       <Route path="/lugares" element={<Lugares />} />;
       <Route path="/lugares/:id" element={<VerLugares />} />
       <Route path="/hospedajes" element={<Hospedajes />} />;

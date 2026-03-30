@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import styles from "./verLugares.module.css";
+import Header from "./header";
+import Footer from "./footer";
+import styles from "./VerLugares.module.css";
 import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
 import imgParrot from "../../assets/img1.webp";
+import ScrollToTop from "./ScrollToTop.jsx";
 import { FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const API = import.meta.env.VITE_API_URL;
@@ -59,6 +62,8 @@ function VerLugares() {
 
   return (
     <>
+      <ScrollToTop />
+      <Header />
       <main className={styles.mainContent}>
         <section className={styles.titleSection}>
           <h1 className="font-bold text-[#20A217]">
@@ -146,6 +151,7 @@ function VerLugares() {
           <Mapa key={`${position[0]}-${position[1]}`} positions={position} />
         </section>
       </main>
+      <Footer />
     </>
   );
 }
