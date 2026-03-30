@@ -7,6 +7,7 @@ import VerHospedajes from "/components/VerHospedajes/VerHospedajes.jsx";
 import Lugares from "./pages/Lugares.jsx";
 import Hospedajes from "./pages/Hospedajes.jsx";
 import VerLugares from "./pages/VerLugares.jsx";
+import PerfilUser from "./pages/PerfilUser.jsx";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/lugares/:id" element={<VerLugares />} />
       <Route path="/hospedajes" element={<Hospedajes />} />;
       <Route path="/hospedajes/:id" element={<VerHospedajes />} />
+      <Route path="/perfil" element={<PerfilUser />} />
     </Routes>
   );
 }
