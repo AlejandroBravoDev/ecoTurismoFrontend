@@ -4,10 +4,23 @@ import useHospedajes from "../hooks/useHospedajes";
 import SearchBar from "./components/Hospedajes/SearchBar";
 import Cards from "./components/Hospedajes/Cards";
 import fondoHospedajes from "../assets/destinosDestacados3.webp";
+
 function Hospedajes() {
   useAuthRedirect();
-  const { hospedajes, loading, error, setSearchQuery } = useHospedajes();
+
+  const {
+    hospedajes,
+    municipios,
+    loading,
+    error,
+    setHospedajeAEliminar,
+    setSearchQuery,
+    setSelectedMunicipioId,
+    selectedMunicipioId,
+  } = useHospedajes();
+
   const storedUser = JSON.parse(localStorage.getItem("usuario"));
+
   return (
     <>
       <main className="min-h-screen bg-white pt-20">
@@ -20,6 +33,7 @@ function Hospedajes() {
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-white"></div>
           </div>
+
           <div className="relative z-10 text-center px-6 animate-fade-in-up">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 md:mb-6 drop-shadow-2xl">
               Tu <span className="text-[#20A217]">Descanso</span> Ideal
@@ -30,11 +44,19 @@ function Hospedajes() {
             </p>
           </div>
         </section>
+
         <div className="relative z-30 flex justify-center px-6 -mt-12 md:-mt-20">
-          <SearchBar onSearchSubmit={setSearchQuery} />
+          <SearchBar
+            municipios={municipios}
+            onSearchSubmit={setSearchQuery}
+            onMunicipioChange={setSelectedMunicipioId}
+            currentMunicipioId={selectedMunicipioId}
+          />
         </div>
+
         <div className="w-full pb-20 pt-16 md:pt-24 flex flex-col items-center">
           {error && <p className="text-red-500 font-bold mb-8">{error}</p>}
+
           <Cards
             user={storedUser}
             hospedajes={hospedajes}
@@ -43,6 +65,7 @@ function Hospedajes() {
               setShowModal(true);
             }}
           />
+
           {!loading && hospedajes.length === 0 && (
             <div className="text-center py-20 animate-fade-in text-gray-400">
               <p className="text-xl font-medium">
@@ -52,6 +75,7 @@ function Hospedajes() {
           )}
         </div>
       </main>
+
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
@@ -61,4 +85,5 @@ function Hospedajes() {
     </>
   );
 }
+
 export default Hospedajes;
