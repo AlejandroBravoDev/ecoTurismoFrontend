@@ -2,13 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./VerHospedaje.module.css";
-import Header from "../header";
-import Footer from "../footer";
 import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
 import imgParrot from "../../assets/img1.webp";
 import Mapa from "../mapa/map";
-import ScrollToTop from "../ScrollToTop";
 import useAuthRedirect from "../../hooks/useAuthRedirect";
 import { FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import noImagen from "../../assets/noImage.webp";
@@ -74,13 +71,11 @@ function VerHospedaje() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className={styles.pageContainer}>
           <main className={styles.mainContent}>
             <p className={styles.textWait}>Cargando hospedaje...</p>
           </main>
         </div>
-        <Footer />
       </>
     );
   }
@@ -88,7 +83,6 @@ function VerHospedaje() {
   if (error) {
     return (
       <>
-        <Header />
         <div className={styles.pageContainer}>
           <main className={styles.mainContent}>
             <p
@@ -118,15 +112,12 @@ function VerHospedaje() {
             </button>
           </main>
         </div>
-        <Footer />
       </>
     );
   }
 
   return (
     <>
-      <ScrollToTop />
-      <Header />
       <div className={styles.pageContainer}>
         <main className={styles.mainContent}>
           <section className={styles.titleSection}>
@@ -223,7 +214,6 @@ function VerHospedaje() {
           </section>
         </main>
       </div>
-      <Footer />
     </>
   );
 }
