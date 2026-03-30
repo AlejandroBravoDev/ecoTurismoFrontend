@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 //Importacion de componentes
-import VerHospedajes from "./components/ver-hospedajes/VerHospedajes.jsx";
+import VerHospedajes from "/components/VerHospedajes/VerHospedajes.jsx";
 
 //Importacion de pages
 import Lugares from "./pages/Lugares.jsx";
