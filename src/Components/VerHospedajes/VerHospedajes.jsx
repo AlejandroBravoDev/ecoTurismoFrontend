@@ -5,7 +5,6 @@ import styles from "./VerHospedaje.module.css";
 import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
 import imgParrot from "../../assets/img1.webp";
-import Mapa from "../mapa/map";
 import useAuthRedirect from "../../hooks/useAuthRedirect";
 import { FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import noImagen from "../../assets/noImage.webp";
