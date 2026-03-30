@@ -5,12 +5,14 @@ import VerHospedajes from "/components/VerHospedajes/VerHospedajes.jsx";
 
 //Importacion de pages
 import Lugares from "./pages/Lugares.jsx";
-import Hospedajes from ".pages/Hospedajes.jsx";
+import Hospedajes from "./pages/Hospedajes.jsx";
+import VerLugares from "./pages/VerLugares.jsx";
 
 function App() {
   return (
     <Routes>
       <Route path="/lugares" element={<Lugares />} />;
+      <Route path="/lugares/:id" element={<VerLugares />} />
       <Route path="/hospedajes" element={<Hospedajes />} />;
       <Route path="/hospedajes/:id" element={<VerHospedajes />} />
     </Routes>
