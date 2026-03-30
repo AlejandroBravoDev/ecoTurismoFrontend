@@ -5,6 +5,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import placeholderFotoUsuario from "../../assets/usuarioDemo.webp";
 import bannerFondo from "../../assets/img4.webp";
+import { FaHeart, FaMapMarkerAlt, FaStar, FaTrashAlt } from "react-icons/fa";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -20,7 +21,7 @@ function PerfilUsuario() {
     email: usuario?.email || "",
   });
 
-  const [pestanaActiva, setPestanaActiva] = useState("editar");
+  const [pestanaActiva, setPestanaActiva] = useState("opiniones");
 
   const navigate = useNavigate();
 
@@ -112,6 +113,7 @@ function PerfilUsuario() {
       setUsuario(updatedUser);
       localStorage.setItem("usuario_perfil_cache", JSON.stringify(updatedUser));
 
+      setPestanaActiva("opiniones");
       Swal.fire({
         title: "Perfil actualizado con exito",
         icon: "success",
@@ -136,6 +138,10 @@ function PerfilUsuario() {
     }
   };
 
+  const activarModoEdicion = () => {
+    setPestanaActiva("editar");
+  };
+
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
@@ -158,77 +164,294 @@ function PerfilUsuario() {
     navigate("/");
   };
 
+  const handleDeleteOpinion = async (comentarioId) => {
+    if (
+      !window.confirm("¿Estás seguro de que quieres eliminar esta opinión?")
+    ) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.delete(`${API}/comentarios/${comentarioId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      Swal.fire({
+        title: "Opinión eliminada con éxito",
+        icon: "success",
+      });
+      cargarPerfil();
+    } catch (err) {
+      console.error(
+        "Error al eliminar opinión:",
+        err.response?.data || err.message || err,
+      );
+      Swal.fire({
+        title: "Error al eliminar la opinión",
+        icon: "error",
+      });
+    }
+  };
+
+  const handleRemoveFavorite = async (lugarId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.delete(`${API}/favoritos/${lugarId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setUsuario((prevUsuario) => {
+        const nuevoUsuario = {
+          ...prevUsuario,
+          favoritos: prevUsuario.favoritos.filter(
+            (fav) => fav.lugar.id !== lugarId,
+          ),
+        };
+        localStorage.setItem(
+          "usuario_perfil_cache",
+          JSON.stringify(nuevoUsuario),
+        );
+        return nuevoUsuario;
+      });
+
+      Swal.fire({
+        title: "Lugar eliminado de favoritos",
+        icon: "success",
+      });
+    } catch (err) {
+      console.error(
+        "Error al eliminar favorito:",
+        err.response?.data || err.message || err,
+      );
+      Swal.fire({
+        title: "Error al eliminar el lugar de favoritos.",
+        icon: "error",
+      });
+    }
+  };
+
+  const totalComentarios = usuario?.comentarios
+    ? usuario.comentarios.length
+    : 0;
+  const totalFavoritos = usuario?.favoritos ? usuario.favoritos.length : 0;
+
+  const TarjetaOpinion = ({ comentario }) => (
+    <div className={styles.tarjetaOpinion}>
+      <div className={styles.cabeceraOpinion}>
+        <div className={styles.bloqueInfoAutor}>
+          <img
+            src={getImageUrl(usuario?.avatar_url)}
+            alt="Autor"
+            className={styles.fotoPequenaAutor}
+          />
+          <div className={styles.metaOpinion}>
+            <h4>{usuario?.nombre_completo}</h4>
+            <div className={styles.ratingStars}>
+              {[...Array(5)].map((star, i) => (
+                <FaStar
+                  key={i}
+                  color={i < comentario.rating ? "#facc15" : "#e4e5e9"}
+                />
+              ))}
+            </div>
+            <p className={styles.metaInfo}>
+              {comentario.created_at} • {comentario.category}
+            </p>
+          </div>
+        </div>
+
+        {usuario?.id === comentario.usuario_id && (
+          <div className={styles.accionesOpinion}>
+            <button
+              className={styles.botonEliminarOpinion}
+              onClick={() => handleDeleteOpinion(comentario.id)}
+            >
+              <FaTrashAlt className={styles.iconoBasura} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <p className={styles.textoOpinion}>{comentario.contenido}</p>
+      {comentario.image_url && (
+        <img
+          src={comentario.image_url}
+          alt="Foto del comentario"
+          className={styles.imagenOpinion}
+          loading="lazy"
+        />
+      )}
+      {comentario.lugar && (
+        <>
+          <div className={styles.infoLugarComentario}>
+            <FaMapMarkerAlt className={styles.iconoLugarComentario} />
+            <span className={styles.nombreLugarComentario}>
+              {comentario.lugar.nombre}
+            </span>
+            <span className={styles.direccionLugarComentario}>
+              ({comentario.lugar.direccion})
+            </span>
+          </div>
+          <p className={styles.descripcionLugarOpinion}>
+            {comentario.lugar.descripcion}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
+  const TarjetaItemFavorito = ({ favorito }) => {
+    const item = favorito?.lugar || favorito?.hospedaje;
+    if (!item) return null;
+
+    return (
+      <div className={styles.tarjetaItemFavorito}>
+        <img
+          src={item?.imagen_url || bannerFondo}
+          alt={item?.nombre || "Favorito"}
+          className={styles.imagenItemFavorito}
+          loading="lazy"
+        />
+        <div className={styles.detallesItemFavorito}>
+          <h4>{item?.nombre || "Nombre no disponible"}</h4>
+          <p className={styles.descripcionLugarFavorito}>
+            {item?.descripcion || "Descripción no disponible."}
+          </p>
+        </div>
+        <FaHeart
+          className={styles.iconoCorazonFavorito}
+          onClick={() => handleRemoveFavorite(item.id)}
+          title="Quitar de Favoritos"
+        />
+      </div>
+    );
+  };
+
   const renderizarContenidoPerfil = () => {
     if (!usuario)
       return <p className={styles.mensajeVacio}>Cargando datos...</p>;
 
-    return (
-      <div className={styles.contenedorFormularioEdicion}>
-        <h3 className={styles.tituloSeccion}>Editar perfil</h3>
-        <form
-          className={styles.formularioEdicionPerfil}
-          onSubmit={handleUpdate}
-        >
-          <label htmlFor="nombre_completo">Nombre</label>
-          <input
-            id="nombre_completo"
-            type="text"
-            name="nombre_completo"
-            value={formData.nombre_completo || ""}
-            onChange={handleEditChange}
-          />
-          <label htmlFor="email">Correo</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={formData.email || ""}
-            onChange={handleEditChange}
-          />
-          <label htmlFor="profilePictureFile">Foto de perfil</label>
-          <div className={styles.areaCargaArchivo}>
-            <span>
-              {formData.profilePictureFile
-                ? formData.profilePictureFile.name
-                : "Agrega una nueva imagen"}
-            </span>
-            <input
-              id="profilePictureFile"
-              type="file"
-              name="profilePictureFile"
-              className={styles.inputArchivoOculto}
-              onChange={handleFileChange}
-            />
+    switch (pestanaActiva) {
+      case "opiniones":
+        if (totalComentarios === 0) {
+          return (
+            <p className={styles.mensajeVacio}>Aún no tienes opiniones.</p>
+          );
+        }
+        return (
+          <div className={styles.contenedorOpiniones}>
+            {usuario.comentarios.map((comentario) => (
+              <TarjetaOpinion key={comentario.id} comentario={comentario} />
+            ))}
           </div>
-          <label htmlFor="bannerFile">Foto de portada</label>
-          <div className={styles.areaCargaArchivo}>
-            <span>
-              {formData.bannerFile
-                ? formData.bannerFile.name
-                : "Agrega una nueva imagen"}
-            </span>
-            <input
-              id="bannerFile"
-              type="file"
-              name="bannerFile"
-              className={styles.inputArchivoOculto}
-              onChange={handleFileChange}
-            />
+        );
+      case "favoritos":
+        if (totalFavoritos === 0) {
+          return (
+            <p className={styles.mensajeVacio}>
+              Aún no tienes lugares favoritos.
+            </p>
+          );
+        }
+        return (
+          <div className={styles.contenedorFavoritos}>
+            {usuario.favoritos.map((favorito) => (
+              <TarjetaItemFavorito key={favorito.id} favorito={favorito} />
+            ))}
           </div>
-          <label htmlFor="userId">ID</label>
-          <input
-            id="userId"
-            type="text"
-            value={usuario.id || ""}
-            readOnly
-            className={styles.campoSoloLectura}
-          />
-          <button type="submit" className={styles.botonGuardarPerfil}>
-            Guardar
-          </button>
-        </form>
-      </div>
-    );
+        );
+      case "editar":
+        return (
+          <div className={styles.contenedorFormularioEdicion}>
+            <h3 className={styles.tituloSeccion}>Editar perfil</h3>
+            <form
+              className={styles.formularioEdicionPerfil}
+              onSubmit={handleUpdate}
+            >
+              <label htmlFor="nombre_completo">Nombre</label>
+              <input
+                id="nombre_completo"
+                type="text"
+                name="nombre_completo"
+                value={formData.nombre_completo || ""}
+                onChange={handleEditChange}
+              />
+              <label htmlFor="email">Correo</label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value={formData.email || ""}
+                onChange={handleEditChange}
+              />
+              <label htmlFor="profilePictureFile">Foto de perfil</label>
+              <div className={styles.areaCargaArchivo}>
+                <span>
+                  {formData.profilePictureFile
+                    ? formData.profilePictureFile.name
+                    : "Agrega una nueva imagen"}
+                </span>
+                <input
+                  id="profilePictureFile"
+                  type="file"
+                  name="profilePictureFile"
+                  className={styles.inputArchivoOculto}
+                  onChange={handleFileChange}
+                />
+              </div>
+              <label htmlFor="bannerFile">Foto de portada</label>
+              <div className={styles.areaCargaArchivo}>
+                <span>
+                  {formData.bannerFile
+                    ? formData.bannerFile.name
+                    : "Agrega una nueva imagen"}
+                </span>
+                <input
+                  id="bannerFile"
+                  type="file"
+                  name="bannerFile"
+                  className={styles.inputArchivoOculto}
+                  onChange={handleFileChange}
+                />
+              </div>
+              <label htmlFor="userId">ID</label>
+              <input
+                id="userId"
+                type="text"
+                value={usuario.id || ""}
+                readOnly
+                className={styles.campoSoloLectura}
+              />
+              <button type="submit" className={styles.botonGuardarPerfil}>
+                Guardar
+              </button>
+              <button
+                type="button"
+                className={styles.botonCancelarEdicion}
+                onClick={() => setPestanaActiva("opiniones")}
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -254,10 +477,36 @@ function PerfilUsuario() {
             </span>
           </div>
           <div className={styles.contenedorAcciones}>
+            <button
+              className={`${styles.botonEditarPerfil} ${
+                pestanaActiva === "editar" ? styles.ocultoEnEdicion : ""
+              }`}
+              onClick={activarModoEdicion}
+            >
+              Editar perfil
+            </button>
             <button className={styles.botonCerrarSesion} onClick={handleLogout}>
               Cerrar Sesión
             </button>
           </div>
+        </div>
+        <div className={styles.pestanasNavegacionPerfil}>
+          <button
+            className={`${styles.botonPestanaNavegacion} ${
+              pestanaActiva === "opiniones" ? styles.pestanaActiva : ""
+            }`}
+            onClick={() => setPestanaActiva("opiniones")}
+          >
+            Opiniones <span>{totalComentarios}</span>
+          </button>
+          <button
+            className={`${styles.botonPestanaNavegacion} ${
+              pestanaActiva === "favoritos" ? styles.pestanaActiva : ""
+            }`}
+            onClick={() => setPestanaActiva("favoritos")}
+          >
+            Favoritos <span>{totalFavoritos}</span>
+          </button>
         </div>
         <div className={styles.areaContenidoPestana}>
           {renderizarContenidoPerfil()}
