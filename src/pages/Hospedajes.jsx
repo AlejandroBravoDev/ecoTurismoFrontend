@@ -1,9 +1,12 @@
 import React from "react";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import useHospedajes from "../hooks/useHospedajes";
+import Header from "./components/header";
+import Footer from "./components/footer";
 import SearchBar from "./components/Hospedajes/SearchBar";
 import Cards from "./components/Hospedajes/Cards";
 import fondoHospedajes from "../assets/destinosDestacados3.webp";
+import ScrollToTop from "../components/ScrollToTop";
 
 function Hospedajes() {
   useAuthRedirect();
@@ -23,6 +26,9 @@ function Hospedajes() {
 
   return (
     <>
+      <ScrollToTop />
+      <Header />
+
       <main className="min-h-screen bg-white pt-20">
         <section className="relative h-[50vh] md:h-[65vh] flex items-center justify-center text-white overflow-hidden">
           <div className="absolute inset-0 z-0">
@@ -75,6 +81,7 @@ function Hospedajes() {
           )}
         </div>
       </main>
+      <Footer />
 
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
