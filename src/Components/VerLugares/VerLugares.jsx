@@ -236,6 +236,8 @@ function VerLugares() {
 
   return (
     <>
+      <ScrollToTop />
+      <Header />
       <main className={styles.mainContent}>
         <section className={styles.titleSection}>
           <h1 className="font-bold text-[#20A217]">
@@ -374,6 +376,7 @@ function VerLugares() {
           )}
         </section>
       </main>
+      <Footer />
     </>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import Header from "./header";
+import Footer from "./footer";
 import styles from "./VerHospedaje.module.css";
 import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
@@ -263,6 +265,8 @@ function VerHospedaje() {
 
   return (
     <>
+      <ScrollToTop />
+      <Header />
       <div className={styles.pageContainer}>
         <main className={styles.mainContent}>
           <section className={styles.titleSection}>
@@ -400,6 +404,7 @@ function VerHospedaje() {
           </section>
         </main>
       </div>
+      <Footer />
     </>
   );
 }

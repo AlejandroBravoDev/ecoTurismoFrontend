@@ -1,9 +1,12 @@
 import React from "react";
 import useAuthRedirect from "../hooks/useAuthRedirect";
 import useLugares from "../hooks/useLugares";
+import Header from "./components/header";
+import Footer from "./components/footer";
 import SearchBar from "./components/Lugares/SearchBar";
 import Cards from "./components/Lugares/Cards";
 import fondoLugares from "../assets/portadaProyecto.webp";
+import ScrollToTop from "../components/ScrollToTop";
 
 function Lugares() {
   useAuthRedirect();
@@ -25,6 +28,8 @@ function Lugares() {
 
   return (
     <>
+      <ScrollToTop />
+      <Header />
       <main className="min-h-screen bg-white pt-20">
         <section className="relative h-[50vh] md:h-[65vh] flex items-center justify-center text-white overflow-hidden">
           <div className="absolute inset-0 z-0">
@@ -80,6 +85,7 @@ function Lugares() {
           )}
         </div>
       </main>
+      <Footer />
 
       <style>{`
         @keyframes fadeInUp {
