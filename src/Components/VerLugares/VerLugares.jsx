@@ -32,25 +32,11 @@ const CommentActionsBlock = ({
         {isMenuOpen && (
           <div className={styles.sideOptionsMenu}>
             {isOwner ? (
-<<<<<<< HEAD
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(commentId); }}
-                className={`${styles.sideOptionItem} ${styles.delete}`}
-              >
-                Eliminar opinión
-              </button>
-            ) : (
-              <button
-                onClick={(e) => { e.stopPropagation(); onReport(commentId); }}
-                className={`${styles.sideOptionItem} ${styles.report}`}
-              >
-=======
               <button onClick={(e) => { e.stopPropagation(); onDelete(commentId); }} className={`${styles.sideOptionItem} ${styles.delete}`}>
                 Eliminar opinión
               </button>
             ) : (
               <button onClick={(e) => { e.stopPropagation(); onReport(commentId); }} className={`${styles.sideOptionItem} ${styles.report}`}>
->>>>>>> 752b95d (feat(HU10): integración del mapa en vista de lugares)
                 Denunciar opinión
               </button>
             )}
@@ -131,45 +117,11 @@ function VerLugares() {
     }
   };
 
-<<<<<<< HEAD
-  const checkFavorite = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await axios.get(`${API}/favoritos/check/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsFavorite(response.data.isFavorite);
-      } catch (err) {
-        console.error("Error al verificar favorito:", err);
-      }
-    }
-  };
-
-=======
->>>>>>> 752b95d (feat(HU10): integración del mapa en vista de lugares)
   const handleFavoriteToggle = async () => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
     try {
       if (isFavorite) {
-<<<<<<< HEAD
-        await axios.delete(`${API}/favoritos/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsFavorite(false);
-      } else {
-        await axios.post(
-          `${API}/favoritos`,
-          { lugar_id: id },
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
-        setIsFavorite(true);
-      }
-    } catch (err) {
-      Swal.fire({ title: "Error al actualizar favoritos.", icon: "error" });
-    }
-=======
         await axios.delete(`${API}/favoritos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
         setIsFavorite(false);
       } else {
@@ -177,7 +129,6 @@ function VerLugares() {
         setIsFavorite(true);
       }
     } catch (err) { Swal.fire({ title: "Error al actualizar favoritos.", icon: "error" }); }
->>>>>>> 752b95d (feat(HU10): integración del mapa en vista de lugares)
   };
 
   const handleSubmit = async () => {
