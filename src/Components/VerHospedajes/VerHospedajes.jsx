@@ -8,11 +8,57 @@ import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
 import imgParrot from "../../assets/img1.webp";
 import useAuthRedirect from "../../hooks/useAuthRedirect";
-import { FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import Filter from "../../utils/profanity";
+import Swal from "sweetalert2";
+import {
+  FaMapMarkerAlt,
+  FaRegStar,
+  FaStar,
+  FaChevronLeft,
+  FaChevronRight,
+  FaEllipsisH,
+} from "react-icons/fa";
+import { MdAddPhotoAlternate } from "react-icons/md";
 import noImagen from "../../assets/noImage.webp";
 
 const API = import.meta.env.VITE_API_URL;
 const defaultImageUrls = [imgMeerkat, imgLion, imgParrot];
+
+const CommentActionsBlock = React.memo(
+  ({ commentId, isOwner, onDelete, onReport, isMenuOpen, setMenuOpen }) => {
+    return (
+      <div className={styles.commentActionsBlock}>
+        <div className={styles.menuIcon}>
+          <FaEllipsisH
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(isMenuOpen ? null : commentId);
+            }}
+          />
+          {isMenuOpen && (
+            <div className={styles.sideOptionsMenu}>
+              {isOwner ? (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDelete(commentId); }}
+                  className={`${styles.sideOptionItem} ${styles.delete}`}
+                >
+                  Eliminar opinión
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onReport(commentId); }}
+                  className={`${styles.sideOptionItem} ${styles.report}`}
+                >
+                  Denunciar opinión
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  },
+);
 
 function VerHospedaje() {
   useAuthRedirect();
@@ -23,15 +69,29 @@ function VerHospedaje() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagenes, setImagenes] = useState([]);
-  const [position, setPosition] = useState([
-    4.81415861127678, -75.71023222513418,
-  ]);
+  const [position, setPosition] = useState([4.81415861127678, -75.71023222513418]);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+  const [opinions, setOpinions] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("Familia");
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const categories = useMemo(() => ["Familia", "Amigos", "Trabajo", "Vacaciones", "Turista"], []);
+
+  const calificacionComentarios = () => {
+    if (rating === 5) return "Excelente";
+    if (rating === 4) return "Buena";
+    if (rating === 3) return "Promedio";
+    if (rating === 2) return "Mala";
+    return "Muy mala";
+  };
 
   const imageSources = useMemo(
-    () =>
-      hospedaje?.imagenes && hospedaje.imagenes.length > 0
-        ? hospedaje.imagenes
-        : defaultImageUrls,
+    () => hospedaje?.imagenes && hospedaje.imagenes.length > 0 ? hospedaje.imagenes : defaultImageUrls,
     [hospedaje],
   );
 
@@ -45,6 +105,18 @@ function VerHospedaje() {
     setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
   }, [totalSlides]);
 
+  const fetchCurrentUser = useCallback(async (token) => {
+    try {
+      const res = await axios.get(`${API}/user`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCurrentUser({ id: res.data.id, name: res.data.nombre_completo, avatar: res.data.avatar_url });
+      setUserId(res.data.id);
+    } catch (err) {
+      console.error("Error al cargar el usuario:", err);
+    }
+  }, []);
+
   const fetchHospedaje = useCallback(async () => {
     const token = localStorage.getItem("token");
     setLoading(true);
@@ -53,71 +125,141 @@ function VerHospedaje() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       setHospedaje(res.data);
+      setOpinions(res.data.comentarios || []);
       setPosition(res.data.coordenadas.split(",").map(Number));
       setImagenes(res.data.todas_las_imagenes);
       setError(null);
     } catch (err) {
-      setError(
-        `No se pudo cargar el hospedaje. ${err.response?.data?.message || ""}`,
-      );
+      setError(`No se pudo cargar el hospedaje. ${err.response?.data?.message || ""}`);
     } finally {
       setLoading(false);
     }
   }, [id]);
 
+  const handleSubmit = async () => {
+    if (!comment || comment.trim() === "") {
+      alert("El comentario no puede estar vacío.");
+      return;
+    }
+    if (Filter.check(comment)) {
+      alert("¡Tú comentario tiene lenguaje inapropiado!");
+      return;
+    }
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    if (rating === 0) {
+      alert("Por favor, selecciona una calificación.");
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("hospedaje_id", id);
+      formData.append("contenido", comment);
+      formData.append("rating", rating);
+      formData.append("category", selectedCategory);
+      if (selectedImage) formData.append("image", selectedImage);
+      const response = await axios.post(`${API}/comentarios`, formData, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      });
+      const newOpinion = {
+        ...response.data.comentario,
+        rating: Number(rating),
+        user: currentUser,
+        usuario_id: currentUser.id,
+      };
+      setOpinions([newOpinion, ...opinions]);
+      setComment("");
+      setRating(0);
+      setSelectedImage(null);
+      setSelectedCategory("Familia");
+    } catch (err) {
+      alert("Error al enviar el comentario.");
+    }
+  };
+
+  const deleteComment = useCallback(async (commentId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return navigate("/login");
+    try {
+      await axios.delete(`${API}/comentarios/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOpinions((prev) => prev.filter((op) => op.id !== commentId));
+      setMenuOpen(null);
+      Swal.fire({ title: "Opinión eliminada con éxito", icon: "success" });
+    } catch (err) {
+      alert("Error al eliminar el comentario.");
+    }
+  }, [navigate]);
+
+  const reportComment = useCallback(async (commentId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return navigate("/login");
+    try {
+      await axios.post(`${API}/comentarios/${commentId}/report`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Opinión denunciada con éxito.");
+      setMenuOpen(null);
+    } catch (err) {
+      alert("Error al denunciar la opinión.");
+    }
+  }, [navigate]);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file?.type.startsWith("image/")) {
+      setSelectedImage(file);
+    } else {
+      alert("Por favor, selecciona un archivo de imagen válido.");
+    }
+  };
+
   useEffect(() => {
-    fetchHospedaje();
-  }, [id, fetchHospedaje]);
+    if (!selectedImage) return;
+    const objectUrl = URL.createObjectURL(selectedImage);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [selectedImage]);
+
+  const getDayAndMonth = (dateString) => {
+    const date = new Date(dateString);
+    const options = { weekday: "long", day: "numeric", month: "long" };
+    let UpperDate = date.toLocaleDateString("es-ES", options).replace(/de /g, "").toLowerCase();
+    return UpperDate.charAt(0).toUpperCase() + UpperDate.slice(1);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const loadData = async () => {
+      if (token) await fetchCurrentUser(token);
+      await fetchHospedaje();
+    };
+    loadData();
+    const handleClickOutside = () => setMenuOpen(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [id, fetchCurrentUser, fetchHospedaje]);
 
   if (loading) {
     return (
-      <>
-        <Header />
-        <div className={styles.pageContainer}>
-          <main className={styles.mainContent}>
-            <p className={styles.textWait}>Cargando hospedaje...</p>
-          </main>
-        </div>
-        <Footer />
-      </>
+      <div className={styles.pageContainer}>
+        <main className={styles.mainContent}>
+          <p className={styles.textWait}>Cargando hospedaje...</p>
+        </main>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <>
-        <Header />
-        <div className={styles.pageContainer}>
-          <main className={styles.mainContent}>
-            <p
-              style={{
-                textAlign: "center",
-                padding: "50px",
-                fontSize: "1.2rem",
-                color: "#e74c3c",
-              }}
-            >
-              {error}
-            </p>
-            <button
-              onClick={() => navigate("/hospedajes")}
-              style={{
-                display: "block",
-                margin: "20px auto",
-                padding: "12px 30px",
-                backgroundColor: "#4b8236",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              Volver a hospedajes
-            </button>
-          </main>
-        </div>
-        <Footer />
-      </>
+      <div className={styles.pageContainer}>
+        <main className={styles.mainContent}>
+          <p style={{ textAlign: "center", padding: "50px", fontSize: "1.2rem", color: "#e74c3c" }}>{error}</p>
+          <button onClick={() => navigate("/hospedajes")} style={{ display: "block", margin: "20px auto", padding: "12px 30px", backgroundColor: "#4b8236", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>
+            Volver a hospedajes
+          </button>
+        </main>
+      </div>
     );
   }
 
@@ -133,71 +275,27 @@ function VerHospedaje() {
 
           <section className={styles.gallery}>
             <div className={styles.mainImage}>
-              <img
-                src={imagenes[0] || noImagen}
-                alt={hospedaje?.nombre}
-                onError={(e) => {
-                  e.target.src = noImagen;
-                }}
-              />
+              <img src={imagenes[0] || noImagen} alt={hospedaje?.nombre} onError={(e) => { e.target.src = noImagen; }} />
             </div>
             <div className={styles.sideImages}>
-              <img
-                src={imagenes[1] || noImagen}
-                alt={hospedaje?.nombre}
-                onError={(e) => {
-                  e.target.src = defaultImageUrls[1];
-                }}
-              />
-              <img
-                src={imagenes[2] || noImagen}
-                alt={hospedaje?.nombre}
-                onError={(e) => {
-                  e.target.src = defaultImageUrls[2];
-                }}
-              />
+              <img src={imagenes[1] || noImagen} alt={hospedaje?.nombre} onError={(e) => { e.target.src = defaultImageUrls[1]; }} />
+              <img src={imagenes[2] || noImagen} alt={hospedaje?.nombre} onError={(e) => { e.target.src = defaultImageUrls[2]; }} />
             </div>
           </section>
 
           <section className={styles.mobileSlider}>
-            <div
-              className={styles.sliderTrack}
-              style={{
-                transform: `translateX(-${currentSlide * (100 / totalSlides)}%)`,
-              }}
-            >
+            <div className={styles.sliderTrack} style={{ transform: `translateX(-${currentSlide * (100 / totalSlides)}%)` }}>
               {imageSources.map((imgSrc, index) => (
                 <div key={index} className={styles.sliderItem}>
-                  <img
-                    src={imgSrc}
-                    alt={`${hospedaje?.nombre} - ${index + 1}`}
-                    onError={(e) => {
-                      e.target.src =
-                        defaultImageUrls[index % defaultImageUrls.length];
-                    }}
-                  />
+                  <img src={imgSrc} alt={`${hospedaje?.nombre} - ${index + 1}`} onError={(e) => { e.target.src = defaultImageUrls[index % defaultImageUrls.length]; }} />
                 </div>
               ))}
             </div>
-            <button
-              className={`${styles.sliderControl} ${styles.prev}`}
-              onClick={prevSlide}
-            >
-              <FaChevronLeft size={24} />
-            </button>
-            <button
-              className={`${styles.sliderControl} ${styles.next}`}
-              onClick={nextSlide}
-            >
-              <FaChevronRight size={24} />
-            </button>
+            <button className={`${styles.sliderControl} ${styles.prev}`} onClick={prevSlide}><FaChevronLeft size={24} /></button>
+            <button className={`${styles.sliderControl} ${styles.next}`} onClick={nextSlide}><FaChevronRight size={24} /></button>
             <div className={styles.sliderDots}>
               {imageSources.map((_, index) => (
-                <span
-                  key={index}
-                  className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ""}`}
-                  onClick={() => setCurrentSlide(index)}
-                />
+                <span key={index} className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ""}`} onClick={() => setCurrentSlide(index)} />
               ))}
             </div>
           </section>
@@ -218,6 +316,91 @@ function VerHospedaje() {
 
           <section className={styles.reviewSection}>
             <Mapa positions={position} />
+            <div className="w-full sm:w-full md:w-[35%] rounded-2xl bg-white p-8">
+              <h2>¡Cuéntanos cómo fue tu experiencia!</h2>
+              <div className={styles.reviewFormContainer}>
+                <div className={styles.reviewForm}>
+                  <textarea placeholder="Cuéntanos aquí" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={5000} />
+                  <div className={styles.reviewActions}>
+                    <label htmlFor="imageUpload" className={styles.btnOutline}>
+                      <MdAddPhotoAlternate /> Adjunta una imagen
+                    </label>
+                    <input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                    <div className={styles.categorySelectContainer}>
+                      <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.categorySelect}>
+                        {categories.map((category) => (
+                          <option key={category} value={category}>{category}</option>
+                        ))}
+                      </select>
+                      <FaChevronRight className={styles.categoryArrow} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {selectedImage && (
+                <div className={styles.imagePreview}>
+                  <p>Imagen seleccionada: {selectedImage.name}</p>
+                  <img src={URL.createObjectURL(selectedImage)} alt="Vista previa" />
+                </div>
+              )}
+              <div className={styles.ratingAndButton}>
+                <div className={styles.ratingGroup}>
+                  <h3>¿Cómo calificarías tu experiencia?</h3>
+                  <div className={styles.heartRating}>
+                    {[...Array(5)].map((_, index) => {
+                      const ratingValue = index + 1;
+                      const isFilled = ratingValue <= (hover || rating);
+                      const Icon = isFilled ? FaStar : FaRegStar;
+                      return (
+                        <label key={index}>
+                          <input type="radio" name="rating" value={ratingValue} onClick={() => setRating(ratingValue)} style={{ display: "none" }} />
+                          <Icon className={styles.heartIcon} color="#ffde21" size={40} onMouseEnter={() => setHover(ratingValue)} onMouseLeave={() => setHover(0)} />
+                        </label>
+                      );
+                    })}
+                    <span className={styles.ratingText}>{calificacionComentarios()}</span>
+                  </div>
+                </div>
+              </div>
+              <button className={styles.btnFilled} onClick={handleSubmit}>Enviar opinión</button>
+            </div>
+          </section>
+
+          <section className={styles.opinionsSection}>
+            <h2>Opiniones</h2>
+            {opinions.length === 0 ? (
+              <p className={styles.noComments}>No hay comentarios aún.</p>
+            ) : (
+              opinions.map((op) => (
+                <div key={op.id} className={styles.opinionCard}>
+                  <div className={styles.opinionContent}>
+                    <div className={styles.opinionHeader}>
+                      <img src={op.user?.avatar || "https://via.placeholder.com/50"} alt={op.user?.name} className={styles.userAvatar} />
+                      <div className={styles.userInfo}>
+                        <h4>{op.user?.name || "Usuario Anónimo"}</h4>
+                        <div className={styles.opinionRating}>
+                          {[...Array(op.rating)].map((_, idx) => (<FaStar key={idx} color="#ffde21" size={14} />))}
+                          {[...Array(5 - op.rating)].map((_, idx) => (<FaRegStar key={idx + op.rating} color="#ffde21" size={14} />))}
+                        </div>
+                      </div>
+                    </div>
+                    <p className={styles.opinionCategoryDate}>{getDayAndMonth(op.created_at)} • {op.category}</p>
+                    <p className={styles.opinionText}>{op.contenido}</p>
+                    {op.image_path && (
+                      <img src={op.image_url || `${API}/storage/${op.image_path}`} alt="Comentario" className={styles.opinionImage} />
+                    )}
+                  </div>
+                  <CommentActionsBlock
+                    commentId={op.id}
+                    isOwner={userId === op.usuario_id}
+                    onDelete={deleteComment}
+                    onReport={reportComment}
+                    isMenuOpen={menuOpen === op.id}
+                    setMenuOpen={setMenuOpen}
+                  />
+                </div>
+              ))
+            )}
           </section>
         </main>
       </div>
