@@ -66,6 +66,7 @@ function VerHospedaje() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hospedaje, setHospedaje] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagenes, setImagenes] = useState([]);
@@ -136,6 +137,20 @@ function VerHospedaje() {
     }
   }, [id]);
 
+  const checkFavorite = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await axios.get(`${API}/favoritos/check/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsFavorite(response.data.isFavorite);
+      } catch (err) {
+        console.error("Error al verificar favorito:", err);
+      }
+    }
+  }, [id]);
+
   const handleSubmit = async () => {
     if (!comment || comment.trim() === "") {
       alert("El comentario no puede estar vacío.");
@@ -174,6 +189,33 @@ function VerHospedaje() {
       setSelectedCategory("Familia");
     } catch (err) {
       alert("Error al enviar el comentario.");
+    }
+  };
+
+  const handleFavoriteToggle = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    try {
+      if (isFavorite) {
+        await axios.delete(`${API}/favoritos/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsFavorite(false);
+      } else {
+        await axios.post(
+          `${API}/favoritos`,
+          { hospedaje_id: id },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      console.error("Error al manejar favorito:", err);
     }
   };
 
@@ -233,12 +275,13 @@ function VerHospedaje() {
     const loadData = async () => {
       if (token) await fetchCurrentUser(token);
       await fetchHospedaje();
+      await checkFavorite();
     };
     loadData();
     const handleClickOutside = () => setMenuOpen(null);
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
-  }, [id, fetchCurrentUser, fetchHospedaje]);
+  }, [id, fetchCurrentUser, fetchHospedaje, checkFavorite]);
 
   if (loading) {
     return (
@@ -271,6 +314,14 @@ function VerHospedaje() {
         <main className={styles.mainContent}>
           <section className={styles.titleSection}>
             <h1>{hospedaje?.nombre || "Hospedaje"}</h1>
+            <div className={styles.actionButtons}>
+              <button
+                className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`}
+                onClick={handleFavoriteToggle}
+              >
+                {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
+              </button>
+            </div>
           </section>
 
           <section className={styles.gallery}>
@@ -299,6 +350,15 @@ function VerHospedaje() {
               ))}
             </div>
           </section>
+
+          <div className={styles.mobileActionButtons}>
+            <button
+              className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`}
+              onClick={handleFavoriteToggle}
+            >
+              {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
+            </button>
+          </div>
 
           <section className={styles.infoSection}>
             <div className="w-full sm:w-[65%]">
