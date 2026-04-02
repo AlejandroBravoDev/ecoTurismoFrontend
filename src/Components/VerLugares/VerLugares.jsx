@@ -1,25 +1,98 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-import Header from "./header";
-import Footer from "./footer";
-import styles from "./VerLugares.module.css";
+import { useParams, useNavigate } from "react-router-dom";
+import styles from "./verLugares.module.css";
 import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
 import imgParrot from "../../assets/img1.webp";
-import ScrollToTop from "./ScrollToTop.jsx";
-import { FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import Filter from "../../utils/profanity.js";
+import Swal from "sweetalert2";
+import {
+  FaMapMarkerAlt,
+  FaRegStar,
+  FaStar,
+  FaChevronLeft,
+  FaChevronRight,
+  FaEllipsisH,
+} from "react-icons/fa";
+import { MdAddPhotoAlternate } from "react-icons/md";
 
 const API = import.meta.env.VITE_API_URL;
 const defaultImageUrls = [imgMeerkat, imgLion, imgParrot];
 
+const CommentActionsBlock = ({
+  commentId,
+  isOwner,
+  onDelete,
+  onReport,
+  isMenuOpen,
+  setMenuOpen,
+}) => {
+  return (
+    <div className={styles.commentActionsBlock}>
+      <div className={styles.menuIcon}>
+        <FaEllipsisH
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen(isMenuOpen ? null : commentId);
+          }}
+        />
+        {isMenuOpen && (
+          <div className={styles.sideOptionsMenu}>
+            {isOwner ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(commentId);
+                }}
+                className={`${styles.sideOptionItem} ${styles.delete}`}
+              >
+                Eliminar opinión
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReport(commentId);
+                }}
+                className={`${styles.sideOptionItem} ${styles.report}`}
+              >
+                Denunciar opinión
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 function VerLugares() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [lugar, setLugar] = useState(null);
-  const [position, setPosition] = useState([
-    4.81415861127678, -75.71023222513418,
-  ]);
+  const [position, setPosition] = useState([4.81415861127678, -75.71023222513418]);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+  const [opinions, setOpinions] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("Familia");
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const categories = ["Familia", "Amigos", "Trabajo", "Vacaciones", "Turista"];
+
+  const calificacionComentarios = () => {
+    if (rating === 5) return "Excelente";
+    if (rating === 4) return "Buena";
+    if (rating === 3) return "Promedio";
+    if (rating === 2) return "Mala";
+    if (rating === 1) return "Muy mala";
+    return "Selecciona una nota";
+  };
 
   const imageSources =
     lugar?.todas_las_imagenes && lugar.todas_las_imagenes.length > 0
@@ -36,15 +109,30 @@ function VerLugares() {
     setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
   };
 
+  const fetchCurrentUser = async (token) => {
+    try {
+      const res = await axios.get(`${API}/user`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCurrentUser({
+        id: res.data.id,
+        name: res.data.nombre_completo,
+        avatar: res.data.avatar_url,
+      });
+      setUserId(res.data.id);
+    } catch (err) {
+      console.error("Error al cargar usuario:", err);
+    }
+  };
+
   const fetchLugar = async () => {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get(`${API}/lugares/${id}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-
       setLugar(res.data);
-
+      setOpinions(res.data.comentarios || []);
       if (res.data.coordenadas && typeof res.data.coordenadas === "string") {
         const coords = res.data.coordenadas.split(",").map(Number);
         if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
@@ -56,8 +144,94 @@ function VerLugares() {
     }
   };
 
+  const handleSubmit = async () => {
+    if (!comment || comment.trim() === "") {
+      Swal.fire({ title: "no se puede publicar tú comentario", text: "El comentario está vacio", icon: "error" });
+      return;
+    }
+    if (Filter.check(comment)) {
+      Swal.fire({ title: "no se puede publicar tú comentario", text: "Tú comentario tiene lenguaje inapropiado", icon: "error" });
+      return;
+    }
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    if (rating === 0) {
+      Swal.fire({ title: "no se puede publicar tú comentario", text: "Tienes que darle una calificación al lugar", icon: "error" });
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("lugar_id", id);
+      formData.append("contenido", comment);
+      formData.append("rating", rating);
+      formData.append("category", selectedCategory);
+      if (selectedImage) formData.append("image", selectedImage);
+      const response = await axios.post(`${API}/comentarios`, formData, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      });
+      const newOpinion = { ...response.data.comentario, user: currentUser, usuario_id: currentUser.id };
+      setOpinions([newOpinion, ...opinions]);
+      setComment("");
+      setRating(0);
+      setSelectedImage(null);
+      setSelectedCategory("Familia");
+    } catch (err) {
+      Swal.fire({ title: "Error al enviar el comentario.", icon: "error" });
+    }
+  };
+
+  const deleteComment = async (commentId) => {
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    try {
+      await axios.delete(`${API}/comentarios/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOpinions(opinions.filter((op) => op.id !== commentId));
+      setMenuOpen(null);
+      Swal.fire({ title: "Opinión eliminada.", icon: "success" });
+    } catch (err) {
+      alert("Error al eliminar.");
+    }
+  };
+
+  const reportComment = async (commentId) => {
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    try {
+      await axios.post(`${API}/comentarios/${commentId}/report`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Swal.fire({ title: "Opinión denunciada.", icon: "success" });
+      setMenuOpen(null);
+    } catch (err) {
+      alert("Error al denunciar.");
+    }
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedImage(file);
+    } else {
+      alert("Selecciona una imagen válida.");
+    }
+  };
+
+  const getDayAndMonth = (dateString) => {
+    const date = new Date(dateString);
+    const options = { weekday: "long", day: "numeric", month: "long" };
+    let UpperDate = date.toLocaleDateString("es-ES", options).replace(/de /g, "").toLowerCase();
+    return UpperDate.charAt(0).toUpperCase() + UpperDate.slice(1);
+  };
+
   useEffect(() => {
+    const token = localStorage.getItem("token");
     fetchLugar();
+    if (token) fetchCurrentUser(token);
+    const handleClickOutside = () => setMenuOpen(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
   }, [id]);
 
   return (
@@ -73,62 +247,27 @@ function VerLugares() {
 
         <section className={styles.gallery}>
           <div className={styles.mainImage}>
-            <img
-              src={imageSources[0]}
-              alt="Principal"
-              onError={(e) => (e.target.src = defaultImageUrls[0])}
-            />
+            <img src={imageSources[0]} alt="Principal" onError={(e) => (e.target.src = defaultImageUrls[0])} />
           </div>
           <div className={styles.sideImages}>
-            <img
-              src={imageSources[1] || defaultImageUrls[1]}
-              alt="Lateral 1"
-              onError={(e) => (e.target.src = defaultImageUrls[1])}
-            />
-            <img
-              src={imageSources[2] || defaultImageUrls[2]}
-              alt="Lateral 2"
-              onError={(e) => (e.target.src = defaultImageUrls[2])}
-            />
+            <img src={imageSources[1] || defaultImageUrls[1]} alt="Lateral 1" onError={(e) => (e.target.src = defaultImageUrls[1])} />
+            <img src={imageSources[2] || defaultImageUrls[2]} alt="Lateral 2" onError={(e) => (e.target.src = defaultImageUrls[2])} />
           </div>
         </section>
 
         <section className={styles.mobileSlider}>
-          <div
-            className={styles.sliderTrack}
-            style={{
-              transform: `translateX(-${currentSlide * (100 / totalSlides)}%)`,
-            }}
-          >
+          <div className={styles.sliderTrack} style={{ transform: `translateX(-${currentSlide * (100 / totalSlides)}%)` }}>
             {imageSources.map((imgSrc, index) => (
               <div key={index} className={styles.sliderItem}>
-                <img
-                  src={imgSrc}
-                  alt="Slide"
-                  onError={(e) => (e.target.src = defaultImageUrls[index % 3])}
-                />
+                <img src={imgSrc} alt="Slide" onError={(e) => (e.target.src = defaultImageUrls[index % 3])} />
               </div>
             ))}
           </div>
-          <button
-            className={`${styles.sliderControl} ${styles.prev}`}
-            onClick={prevSlide}
-          >
-            <FaChevronLeft />
-          </button>
-          <button
-            className={`${styles.sliderControl} ${styles.next}`}
-            onClick={nextSlide}
-          >
-            <FaChevronRight />
-          </button>
+          <button className={`${styles.sliderControl} ${styles.prev}`} onClick={prevSlide}><FaChevronLeft /></button>
+          <button className={`${styles.sliderControl} ${styles.next}`} onClick={nextSlide}><FaChevronRight /></button>
           <div className={styles.sliderDots}>
             {imageSources.map((_, index) => (
-              <span
-                key={index}
-                className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ""}`}
-                onClick={() => setCurrentSlide(index)}
-              />
+              <span key={index} className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ""}`} onClick={() => setCurrentSlide(index)} />
             ))}
           </div>
         </section>
@@ -149,6 +288,92 @@ function VerLugares() {
 
         <section className={styles.reviewSection}>
           <Mapa key={`${position[0]}-${position[1]}`} positions={position} />
+          <div className="w-full sm:w-full md:w-[35%] rounded-2xl bg-white p-8">
+            <h2>¡Cuéntanos cómo fue tu experiencia!</h2>
+            <div className={styles.reviewFormContainer}>
+              <div className={styles.reviewForm}>
+                <textarea placeholder="Cuentanos aquí" value={comment} onChange={(e) => setComment(e.target.value)} cols={20} />
+                <div className={styles.reviewActions}>
+                  <label htmlFor="imageUpload" className={styles.btnOutline}>
+                    <MdAddPhotoAlternate /> Adjunta una imagen
+                  </label>
+                  <input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                  <div className={styles.categorySelectContainer}>
+                    <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.categorySelect}>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
+                    </select>
+                    <FaChevronRight className={styles.categoryArrow} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            {selectedImage && (
+              <div className={styles.imagePreview}>
+                <p>Imagen seleccionada: {selectedImage.name}</p>
+                <img src={URL.createObjectURL(selectedImage)} alt="Vista previa" className="w-50 h-50 rounded-xl" />
+              </div>
+            )}
+            <div className={styles.ratingAndButton}>
+              <div className={styles.ratingGroup}>
+                <h3>¿Cómo calificarías tu experiencia?</h3>
+                <div className={styles.heartRating}>
+                  {[...Array(5)].map((_, index) => {
+                    const ratingValue = index + 1;
+                    const isFilled = ratingValue <= (hover || rating);
+                    const Icon = isFilled ? FaStar : FaRegStar;
+                    return (
+                      <label key={index}>
+                        <input type="radio" name="rating" value={ratingValue} onClick={() => setRating(ratingValue)} style={{ display: "none" }} />
+                        <Icon className={styles.heartIcon} color="#ffde21" size={40} onMouseEnter={() => setHover(ratingValue)} onMouseLeave={() => setHover(0)} />
+                      </label>
+                    );
+                  })}
+                </div>
+                <span className={styles.ratingText}>{calificacionComentarios()}</span>
+              </div>
+              <button className={styles.btnFilled} onClick={handleSubmit}>Enviar opinión</button>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.opinionsSection}>
+          <h2>Opiniones</h2>
+          {opinions.length === 0 ? (
+            <p className={styles.noComments}>No hay comentarios aún.</p>
+          ) : (
+            opinions.map((op) => (
+              <div key={op.id} className={styles.opinionCard}>
+                <div className={styles.opinionContent}>
+                  <div className={styles.opinionHeader}>
+                    <img src={op.user?.avatar || "https://via.placeholder.com/50"} alt="Avatar" className={styles.userAvatar} />
+                    <div className={styles.userInfo}>
+                      <h4>{op.user?.name || "Usuario Anónimo"}</h4>
+                      <div className={styles.opinionRating}>
+                        {[...Array(5)].map((_, idx) =>
+                          idx < op.rating ? <FaStar key={idx} color="#ffde21" size={14} /> : <FaRegStar key={idx} color="#ffde21" size={14} />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <p className={styles.opinionCategoryDate}>{getDayAndMonth(op.created_at)} • {op.category}</p>
+                  <p className={styles.opinionText}>{op.contenido}</p>
+                  {op.image_path && (
+                    <img src={op.image_url || `${API}/storage/${op.image_path}`} alt="Review" className={styles.opinionImage} />
+                  )}
+                </div>
+                <CommentActionsBlock
+                  commentId={op.id}
+                  isOwner={userId === op.usuario_id}
+                  onDelete={deleteComment}
+                  onReport={reportComment}
+                  isMenuOpen={menuOpen === op.id}
+                  setMenuOpen={setMenuOpen}
+                />
+              </div>
+            ))
+          )}
         </section>
       </main>
       <Footer />
