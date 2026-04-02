@@ -41,20 +41,14 @@ const CommentActionsBlock = ({
           <div className={styles.sideOptionsMenu}>
             {isOwner ? (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(commentId);
-                }}
+                onClick={(e) => { e.stopPropagation(); onDelete(commentId); }}
                 className={`${styles.sideOptionItem} ${styles.delete}`}
               >
                 Eliminar opinión
               </button>
             ) : (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReport(commentId);
-                }}
+                onClick={(e) => { e.stopPropagation(); onReport(commentId); }}
                 className={`${styles.sideOptionItem} ${styles.report}`}
               >
                 Denunciar opinión
@@ -82,6 +76,7 @@ function VerLugares() {
   const [menuOpen, setMenuOpen] = useState(null);
   const [userId, setUserId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const categories = ["Familia", "Amigos", "Trabajo", "Vacaciones", "Turista"];
 
@@ -141,6 +136,42 @@ function VerLugares() {
       }
     } catch (err) {
       console.error("Error al cargar lugar:", err);
+    }
+  };
+
+  const checkFavorite = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await axios.get(`${API}/favoritos/check/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsFavorite(response.data.isFavorite);
+      } catch (err) {
+        console.error("Error al verificar favorito:", err);
+      }
+    }
+  };
+
+  const handleFavoriteToggle = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    try {
+      if (isFavorite) {
+        await axios.delete(`${API}/favoritos/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsFavorite(false);
+      } else {
+        await axios.post(
+          `${API}/favoritos`,
+          { lugar_id: id },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      Swal.fire({ title: "Error al actualizar favoritos.", icon: "error" });
     }
   };
 
@@ -228,6 +259,7 @@ function VerLugares() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     fetchLugar();
+    checkFavorite();
     if (token) fetchCurrentUser(token);
     const handleClickOutside = () => setMenuOpen(null);
     window.addEventListener("click", handleClickOutside);
@@ -236,13 +268,19 @@ function VerLugares() {
 
   return (
     <>
-      <ScrollToTop />
-      <Header />
       <main className={styles.mainContent}>
         <section className={styles.titleSection}>
           <h1 className="font-bold text-[#20A217]">
             {lugar?.nombre || "Explora este destino"}
           </h1>
+          <div className={styles.actionButtons}>
+            <button
+              className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`}
+              onClick={handleFavoriteToggle}
+            >
+              {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
+            </button>
+          </div>
         </section>
 
         <section className={styles.gallery}>
@@ -376,7 +414,6 @@ function VerLugares() {
           )}
         </section>
       </main>
-      <Footer />
     </>
   );
 }
