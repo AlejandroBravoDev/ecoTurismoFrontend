@@ -41,6 +41,21 @@ function CrearUniversal() {
     }
   }, [tipo]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const endpoints = {
+    lugar: import.meta.env.VITE_API_URL + "/lugares",
+    hospedaje: import.meta.env.VITE_API_URL + "/hospedajes",
+    usuario: import.meta.env.VITE_API_URL + "/usuarios",
+  };
+
   return (
     <div className="w-full min-h-screen flex items-center justify-evenly py-40 bg-gray-100 px-6">
     </div>
