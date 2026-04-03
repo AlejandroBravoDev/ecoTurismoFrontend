@@ -204,6 +204,139 @@ const EditarUsuario = () => {
 
   return (
     <div className={styles.pageBackground}>
+      <div
+        className={styles.coverImage}
+        style={{ backgroundImage: `url(${previewBanner})` }}
+      >
+        {editing && (
+          <label className={styles.changeCoverButton}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleBannerChange}
+              style={{ display: "none" }}
+            />
+            ➕ Cambiar Foto de Portada
+          </label>
+        )}
+      </div>
+
+      <div className={styles.profileCard}>
+        <div className={styles.profileHeader}>
+          <div className={styles.avatarWrapper}>
+            <img
+              src={previewAvatar}
+              alt={user.nombre_completo}
+              onError={(e) => (e.target.src = defaultAvatar)}
+              className={styles.profileAvatar}
+            />
+            {editing && (
+              <label className={styles.changeAvatarOverlay}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  style={{ display: "none" }}
+                />
+                ➕ Cambiar Avatar
+              </label>
+            )}
+          </div>
+
+          <div className={styles.nameAndId}>
+            <h2 className={styles.profileName}>{user.nombre_completo}</h2>
+            <p className={styles.profileUsername}>@{user.id}</p>
+          </div>
+        </div>
+
+        <div className={styles.navStats}>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>1</span>
+            <span className={styles.statLabel}>Opiniones</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>1</span>
+            <span className={styles.statLabel}>Favoritos</span>
+          </div>
+        </div>
+
+        <hr className={styles.divider} />
+
+        <div className={styles.editSection}>
+          <h3 className={styles.editTitle}>
+            {editing ? "Editar Usuario" : "Información"}
+          </h3>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Nombre Completo</label>
+            <input
+              type="text"
+              name="nombre_completo"
+              value={formData.nombre_completo}
+              onChange={handleInputChange}
+              className={styles.formInput}
+              disabled={!editing}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Correo</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className={styles.formInput}
+              disabled={!editing}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>ID</label>
+            <input
+              type="text"
+              value={user.id}
+              disabled
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Fecha de Registro</label>
+            <input
+              type="text"
+              value={new Date(user.created_at).toLocaleDateString()}
+              disabled
+              className={styles.formInput}
+            />
+          </div>
+
+          <div className={styles.actionButtons}>
+            {editing ? (
+              <>
+                <button onClick={handleSave} className={styles.saveButton}>
+                  Guardar Cambios
+                </button>
+                <button onClick={handleCancel} className={styles.cancelButton}>
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setEditing(true)}
+                  className={styles.editButton}
+                >
+                  Editar Usuario
+                </button>
+                <button onClick={handleDelete} className={styles.deleteButton}>
+                  Eliminar Usuario
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
