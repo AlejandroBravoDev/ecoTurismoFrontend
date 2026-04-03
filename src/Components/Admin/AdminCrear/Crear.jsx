@@ -216,6 +216,41 @@ function CrearUniversal() {
           Crear {tipo}
         </button>
       </form>
+
+      <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all w-[90%] max-w-[360px] text-left animate-in fade-in slide-in-from-bottom-20 duration-1000 fill-mode-both break-words">
+        <div className="relative h-72 overflow-hidden">
+          {imagenes.length > 0 ? (
+            <img
+              src={URL.createObjectURL(imagenes[0])}
+              className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700 text-white"
+              alt="preview"
+            />
+          ) : (
+            <div className="w-full h-52 border rounded-xl flex items-center justify-center text-gray-400">
+              Preview
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 bg-white transition-colors break-words">
+          <h2 className="text-xl font-bold mb-1 text-black break-words">
+            {formData.nombre || "Nombre..."}
+          </h2>
+
+          {(tipo === "lugar" || tipo === "hospedaje") && (
+            <p className="text-black text-sm gap-1 mb-3 break-words">
+              {formData.descripcion || "Descripción..."}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between pt-2">
+            <button className="text-[#20A217] font-semibold hover:cursor-pointer flex items-center gap-1 group/btn">
+              Ver Detalles
+              <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
