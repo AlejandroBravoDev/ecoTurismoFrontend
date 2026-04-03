@@ -33,6 +33,23 @@ const Cards = React.memo(({ lugares: lugaresProps = [], user, onDelete }) => {
   return (
     <section className="w-full flex justify-center py-6">
       <div className="flex flex-wrap justify-center gap-x-6 gap-y-10 w-full max-w-[1440px] px-4">
+        {user?.rol === "admin" && (
+          <div className="flex justify-center items-center w-full sm:w-[320px] lg:w-[350px]">
+            <Link
+              to="/admin/crear/lugar"
+              className="group flex flex-col justify-center items-center bg-[#f8fff9] rounded-[32px] border-2 border-dashed border-[#42702f]/30 w-full min-h-[440px] transition-all duration-300 hover:bg-[#7ccf5c15] hover:border-[#42702f] hover:scale-[1.02] text-center shadow-sm"
+            >
+              <div className="text-[#4b8236] flex flex-col items-center">
+                <div className="bg-white p-4 rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                  <Plus size={40} strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-bold uppercase tracking-tight">
+                  Crear nuevo lugar
+                </h3>
+              </div>
+            </Link>
+          </div>
+        )}
         {displayLugares.map((lugar) => (
           <div
             key={lugar.id}
