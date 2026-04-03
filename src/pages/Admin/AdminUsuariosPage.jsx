@@ -1,4 +1,4 @@
-import AdminUsuarios from "../../Components/Admin/PanelAdmin/AdminUsuarios";
+import AdminUsuarios from "../../Components/Admin/AdminUsuarios/AdminUsuarios";
 import Footer from "../../Components/footer/index";
 import Header from "../../Components/header/index";
 import AuthRedirect from "../../hooks/useAuthRedirect";
