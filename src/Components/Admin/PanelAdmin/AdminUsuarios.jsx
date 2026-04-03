@@ -36,6 +36,21 @@ const AdminUsers = () => {
     }
   };
 
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const rolLimpio = String(user.rol || "")
+        .toLowerCase()
+        .trim();
+      const isNotAdmin = rolLimpio !== "admin" && rolLimpio !== "administrador";
+      const matchesSearch =
+        user.nombre_completo
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      return isNotAdmin && matchesSearch;
+    });
+  }, [users, searchTerm]);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center w-full">
       <main className="w-full flex flex-col items-center flex-grow pt-20">
