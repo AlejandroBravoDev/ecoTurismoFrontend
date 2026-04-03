@@ -186,8 +186,24 @@ const EditarUsuario = () => {
     setNewBanner(null);
   };
 
+  if (loading) {
+    return (
+      <div style={{ padding: "50px", textAlign: "center" }}>
+        Cargando información del usuario...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{ padding: "50px", textAlign: "center" }}>
+        Usuario no encontrado
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className={styles.pageBackground}>
     </div>
   );
 };
