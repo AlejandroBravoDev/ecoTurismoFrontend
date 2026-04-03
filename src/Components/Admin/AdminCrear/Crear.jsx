@@ -56,6 +56,25 @@ function CrearUniversal() {
     usuario: import.meta.env.VITE_API_URL + "/usuarios",
   };
 
+  const onDrop = (acceptedFiles) => {
+    if (imagenes.length + acceptedFiles.length > 3) {
+      Swal.fire("Máximo 3 imágenes");
+      return;
+    }
+
+    setImagenes((prev) => [...prev, ...acceptedFiles]);
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [] },
+    maxFiles: 3,
+    onDrop,
+  });
+
+  const eliminarImagen = (index) => {
+    setImagenes((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="w-full min-h-screen flex items-center justify-evenly py-40 bg-gray-100 px-6">
     </div>
