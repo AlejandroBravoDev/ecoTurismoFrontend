@@ -53,6 +53,29 @@ const EditarUsuario = () => {
     }
   };
 
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewAvatar(file);
+      setPreviewAvatar(URL.createObjectURL(file));
+    }
+  };
+
+  const handleBannerChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewBanner(file);
+      setPreviewBanner(URL.createObjectURL(file));
+    }
+  };
+
   return (
     <div>
     </div>
