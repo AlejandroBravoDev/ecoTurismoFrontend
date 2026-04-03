@@ -10,15 +10,23 @@ import VerLugares from "./pages/VerLugares.jsx";
 import PerfilUser from "./pages/PerfilUser.jsx";
 import Home from "./pages/Home.jsx";
 
+//importación de rutas para el admin
+import PanelAdminPage from "./pages/Admin/PanelAdminPage.jsx";
+
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+
       <Route path="/lugares" element={<Lugares />} />;
       <Route path="/lugares/:id" element={<VerLugares />} />
+
       <Route path="/hospedajes" element={<Hospedajes />} />;
       <Route path="/hospedajes/:id" element={<VerHospedajes />} />
+      
       <Route path="/perfil" element={<PerfilUser />} />
+
+      <Route path="/PanelAdmin" element={<PanelAdminPage />} />
     </Routes>
   );
 }
