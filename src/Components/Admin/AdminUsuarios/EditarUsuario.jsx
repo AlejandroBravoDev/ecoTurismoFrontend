@@ -140,6 +140,52 @@ const EditarUsuario = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (
+      !confirm(
+        "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/usuarios/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          text: "Usuario Eliminado",
+        });
+        navigate("/admin/usuarios");
+      } else {
+        alert("Error al eliminar usuario");
+      }
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      alert("Error al eliminar el usuario");
+    }
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setFormData({
+      nombre_completo: user.nombre_completo,
+      email: user.email,
+    });
+    setPreviewAvatar(user.avatar_url || defaultAvatar);
+    setPreviewBanner(user.banner_url || defaultBanner);
+    setNewAvatar(null);
+    setNewBanner(null);
+  };
+
   return (
     <div>
     </div>
