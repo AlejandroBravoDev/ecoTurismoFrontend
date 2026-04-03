@@ -17,3 +17,32 @@ const cardVariants = {
     transition: { duration: 0.6, ease: "easeOut" },
   },
 };
+
+function PanelAdmin(){
+    const adminCards = [
+    {
+      title: "Hospedajes",
+      description: "Gestiona hoteles, fincas y sitios de alojamiento.",
+      image: imgHospedajes,
+      link: "/hospedajes",
+      buttonText: "Gestionar Hospedajes",
+      color: "text-[#20A217]",
+    },
+    {
+      title: "Lugares",
+      description: "Administra los destinos turísticos y puntos de interés.",
+      image: imgLugares,
+      link: "/lugares",
+      buttonText: "Gestionar Lugares",
+      color: "text-[#20A217]",
+    },
+    {
+      title: "Usuarios",
+      description: "Controla los perfiles, roles y accesos de la comunidad.",
+      image: imgUsuarios,
+      link: "/admin/usuarios",
+      buttonText: "Gestionar Usuarios",
+      color: "text-[#20A217]",
+    },
+  ];
+}
