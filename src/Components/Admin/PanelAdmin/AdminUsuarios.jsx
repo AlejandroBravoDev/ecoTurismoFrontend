@@ -66,7 +66,28 @@ const AdminUsers = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center w-full">
       <main className="w-full flex flex-col items-center flex-grow pt-20">
+        <div
+          className="w-full h-[300px] bg-cover bg-center relative flex items-center justify-center"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=80")`,
+          }}
+        >
+          <h2 className="text-6xl md:text-7xl font-black tracking-tighter text-white uppercase text-center">
+            Gestión de <span className="text-[#20A217]">Usuarios</span>
+          </h2>
+        </div>
 
+        <div className="w-full max-w-7xl px-6 flex justify-center pt-10">
+          <div className="bg-white rounded-3xl shadow-xl p-8 border border-slate-100 w-full max-w-4xl -mt-16 relative z-10">
+            <input
+              type="text"
+              className="w-full bg-slate-100 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-[#20A217] outline-none transition-all"
+              placeholder="Buscar por nombre o correo..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
       </main>
     </div>
   );
