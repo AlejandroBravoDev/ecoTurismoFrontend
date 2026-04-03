@@ -21,8 +21,8 @@ const cardVariants = {
   },
 };
 
-function PanelAdmin(){
-    const adminCards = [
+function PanelAdmin() {
+  const adminCards = [
     {
       title: "Hospedajes",
       description: "Gestiona hoteles, fincas y sitios de alojamiento.",
@@ -49,9 +49,29 @@ function PanelAdmin(){
     },
   ];
 
-    return (
+  return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center w-full">
       <main className="w-full flex flex-col items-center flex-grow">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="w-full h-[350px] bg-cover bg-center relative flex items-center justify-center text-center"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80")`,
+          }}
+        >
+          <div className="px-4">
+            <motion.h1
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase"
+            >
+              Panel <span className="text-[#20A217]">Admin</span>
+            </motion.h1>
+          </div>
+        </motion.div>
         <div className="w-full max-w-7xl px-6 py-20">
           <motion.div
             variants={containerVariants}
@@ -106,7 +126,7 @@ function PanelAdmin(){
         </div>
       </main>
     </div>
-  );    
+  );
 }
 
 export default PanelAdmin;
