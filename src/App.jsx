@@ -12,6 +12,8 @@ import Home from "./pages/Home.jsx";
 
 //importación de rutas para el admin
 import PanelAdminPage from "./pages/Admin/PanelAdminPage.jsx";
+import AdminUsuariosPage from "./pages/Admin/AdminUsuariosPage.jsx";
+import EditarUsuarioPage from "./pages/Admin/EditarUsuarioPage.jsx";
 
 function App() {
   return (
@@ -26,7 +28,10 @@ function App() {
       
       <Route path="/perfil" element={<PerfilUser />} />
 
+      {/* Rutas del admin */}
       <Route path="/PanelAdmin" element={<PanelAdminPage />} />
+      <Route path="/PanelAdmin/usuarios" element={<AdminUsuariosPage />} />
+      <Route path="/PanelAdmin/usuarios/:id" element={<EditarUsuarioPage />} />
     </Routes>
   );
 }
