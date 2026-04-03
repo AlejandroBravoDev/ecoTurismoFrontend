@@ -144,6 +144,16 @@ const AdminUsers = () => {
               </AnimatePresence>
             )}
           </div>
+
+          {!loading && filteredUsers.length === 0 && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-slate-400 py-20 uppercase font-bold tracking-widest"
+            >
+              No se encontraron usuarios
+            </motion.p>
+          )}
         </div>
       </main>
     </div>
