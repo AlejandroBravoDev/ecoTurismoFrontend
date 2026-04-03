@@ -51,10 +51,22 @@ const AdminUsers = () => {
     });
   }, [users, searchTerm]);
 
+  const SkeletonCard = () => (
+    <div className="bg-white rounded-[2.5rem] p-4 w-full max-w-[360px] border border-slate-100 animate-pulse">
+      <div className="h-56 bg-slate-200 rounded-[2rem] mb-6"></div>
+      <div className="h-6 bg-slate-200 rounded w-3/4 mb-4 ml-6"></div>
+      <div className="h-4 bg-slate-100 rounded w-1/2 mb-6 ml-6"></div>
+      <div className="flex justify-between px-6 pb-4">
+        <div className="h-8 bg-slate-100 rounded w-20"></div>
+        <div className="h-10 bg-slate-200 rounded-xl w-28"></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center w-full">
       <main className="w-full flex flex-col items-center flex-grow pt-20">
-      
+
       </main>
     </div>
   );
