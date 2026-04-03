@@ -8,7 +8,7 @@ import imgParrot from "../../assets/img1.webp";
 import Filter from "../../utils/profanity.js";
 import Swal from "sweetalert2";
 import Mapa from "../mapa/map.jsx";
-import ScrollToTop from "../ScrollToTop.jsx";
+import ScrollToTop from "./ScrollToTop.jsx";
 import {
   FaMapMarkerAlt,
   FaRegStar,
