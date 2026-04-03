@@ -88,6 +88,63 @@ const AdminUsers = () => {
             />
           </div>
         </div>
+
+        <div className="w-full max-w-7xl px-6 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+            {loading ? (
+              <>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {filteredUsers.map((user, index) => (
+                  <motion.div
+                    key={user.id || index}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col w-full max-w-[360px] p-4 hover:p-0 pb-6 hover:pb-6"
+                  >
+                    <div className="h-56 overflow-hidden relative rounded-[2rem] group-hover:rounded-none transition-all duration-500">
+                      <img
+                        src={user.avatar_url || noImage}
+                        loading="eager"
+                        className="w-full h-full object-cover brightness-[0.9] group-hover:brightness-100 group-hover:scale-110 transition-transform duration-700"
+                        alt={user.nombre_completo}
+                        onError={(e) => (e.target.src = noImage)}
+                      />
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-xl font-black text-slate-800 uppercase group-hover:text-[#20A217] transition-colors truncate">
+                        {user.nombre_completo}
+                      </h3>
+                      <p className="text-slate-500 text-sm mb-4 italic truncate">
+                        {user.email}
+                      </p>
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-50 mt-auto">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          {user.created_at
+                            ? new Date(user.created_at).toLocaleDateString()
+                            : "N/A"}
+                        </span>
+                        <button
+                          onClick={() => navigate(`/admin/usuarios/${user.id}`)}
+                          className="bg-[#20A217] text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#1a8212] active:scale-95 transition-all shadow-md cursor-pointer"
+                        >
+                          GESTIONAR
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
