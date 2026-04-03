@@ -76,6 +76,70 @@ const EditarUsuario = () => {
     }
   };
 
+  const handleSave = async () => {
+    try {
+      const form = new FormData();
+      form.append("_method", "PUT");
+      form.append("nombre_completo", formData.nombre_completo);
+      form.append("email", formData.email);
+
+      if (newAvatar) {
+        form.append("avatar", newAvatar);
+      }
+      if (newBanner) {
+        form.append("banner", newBanner);
+      }
+
+      const response = await fetch(`${API_URL}/usuarios/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: form,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        if (response.status === 422 && errorData.errors) {
+          let errorMsg = "Error de validación: \n";
+          for (const key in errorData.errors) {
+            errorMsg += `- ${errorData.errors[key].join(", ")}\n`;
+          }
+          Swal.fire({
+            icon: "error",
+            text: errorMsg,
+          });
+        } else {
+          alert(
+            `Error al actualizar usuario (Código ${response.status}): ${errorData.message || "Error desconocido"}`,
+          );
+        }
+        console.error("API Error Response:", errorData);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          text: "Usuario actualizado correctamente",
+          icon: "success",
+        });
+        setEditing(false);
+        fetchUser();
+      } else {
+        alert(
+          "Error al actualizar usuario: " +
+            (data.message || "La API devolvió un éxito falso."),
+        );
+      }
+    } catch (error) {
+      console.error("Error al guardar:", error);
+      alert("Error de conexión o configuración al guardar los cambios.");
+    }
+  };
+
   return (
     <div>
     </div>
