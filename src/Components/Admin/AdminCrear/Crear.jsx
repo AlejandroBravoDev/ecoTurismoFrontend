@@ -108,6 +108,114 @@ function CrearUniversal() {
 
   return (
     <div className="w-full min-h-screen flex items-center justify-evenly py-40 bg-gray-100 px-6">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl shadow w-[60%] p-8 flex flex-col gap-5 bg-white"
+      >
+        <h1 className="text-3xl font-extrabold text-[#4b8236] capitalize">
+          Crear {tipo}
+        </h1>
+
+        {(tipo === "lugar" || tipo === "hospedaje") && (
+          <>
+            <label className="font-semibold text-[#4b8236]">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              maxLength={45}
+              className="p-3 rounded-lg border"
+              value={formData.nombre}
+              onChange={handleChange}
+            />
+
+            <label className="font-semibold text-[#4b8236]">Descripción</label>
+            <textarea
+              name="descripcion"
+              maxLength={250}
+              className="p-3 min-h-32 rounded-lg border"
+              value={formData.descripcion}
+              onChange={handleChange}
+            />
+
+            <label className="font-semibold text-[#4b8236]">Ubicación</label>
+            <input
+              type="text"
+              name="ubicacion"
+              className="p-3 rounded-lg border"
+              value={formData.ubicacion}
+              onChange={handleChange}
+            />
+
+            <label className="font-semibold text-[#4b8236]">Coordenadas</label>
+            <input
+              type="text"
+              name="coordenadas"
+              className="p-3 rounded-lg border"
+              value={formData.coordenadas}
+              onChange={handleChange}
+            />
+
+            <label className="font-semibold text-[#4b8236]">Municipio</label>
+            <select
+              name="municipio_id"
+              className="p-3 rounded-lg border"
+              value={formData.municipio_id}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un municipio</option>
+              {municipios.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nombre}
+                </option>
+              ))}
+            </select>
+
+            <label className="font-semibold text-[#4b8236]">
+              Imágenes del {tipo}
+            </label>
+
+            <div
+              {...getRootProps()}
+              className={`p-6 border-2 border-dashed rounded-lg cursor-pointer text-center
+              ${isDragActive ? "border-green-600 bg-green-50" : "border-gray-300"}`}
+            >
+              <input {...getInputProps()} />
+              Arrastra hasta 3 imágenes o haz click
+            </div>
+
+            <div className="flex gap-3 mt-4 flex-wrap">
+              {imagenes.map((img, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(img)}
+                    className={`w-24 h-24 object-cover rounded-lg border
+                    ${index === 0 ? "border-green-600 border-4" : ""}`}
+                  />
+                  {index === 0 && (
+                    <span className="absolute top-1 left-1 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                      Principal
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => eliminarImagen(index)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <button
+          type="submit"
+          className="bg-[#4b8236] hover:bg-[#3d6e2d] text-white rounded-xl font-bold py-3 mt-6"
+        >
+          Crear {tipo}
+        </button>
+      </form>
     </div>
   );
 }
