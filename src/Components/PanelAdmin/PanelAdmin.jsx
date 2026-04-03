@@ -49,5 +49,64 @@ function PanelAdmin(){
     },
   ];
 
-  
+    return (
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center w-full">
+      <main className="w-full flex flex-col items-center flex-grow">
+        <div className="w-full max-w-7xl px-6 py-20">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center"
+          >
+            {adminCards.map((card, index) => (
+              <motion.div
+                key={index}
+                variants={cardVariants}
+                whileHover={{ y: -10 }}
+                className="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 flex flex-col w-full max-w-[380px] p-4 hover:p-0 pb-6 hover:pb-6 relative"
+              >
+                <div className="h-64 overflow-hidden relative rounded-[2rem] group-hover:rounded-none transition-all duration-500">
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-all duration-700 brightness-[0.8] group-hover:brightness-100 group-hover:scale-110"
+                  />
+                </div>
+
+                <div className="p-6 flex flex-col items-center text-center flex-grow">
+                  <div className="bg-slate-50 px-4 py-1 rounded-full mb-3">
+                    <span
+                      className={`text-[9px] font-black uppercase tracking-widest ${card.color}`}
+                    >
+                      Administración
+                    </span>
+                  </div>
+
+                  <h4 className="text-2xl font-black text-slate-800 pb-2 tracking-tighter uppercase">
+                    {card.title}
+                  </h4>
+
+                  <p className="text-slate-500 text-sm leading-relaxed pb-6 px-2">
+                    {card.description}
+                  </p>
+
+                  <div className="w-full px-6 mt-auto">
+                    <Link to={card.link}>
+                      <button className="w-full cursor-pointer py-4 rounded-2xl bg-[#20A217] text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-green-100 hover:bg-[#1a8212] transition-all active:scale-95">
+                        {card.buttonText}
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </main>
+    </div>
+  );    
 }
+
+export default PanelAdmin;
