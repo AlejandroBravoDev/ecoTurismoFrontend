@@ -75,6 +75,37 @@ function CrearUniversal() {
     setImagenes((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    try {
+      const endpoint = endpoints[tipo];
+      const formDataToSend = new FormData();
+
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
+
+      imagenes.forEach((img) => {
+        formDataToSend.append("imagenes[]", img);
+      });
+
+      await axios.post(endpoint, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      Swal.fire("Creado", `${tipo} creado correctamente`, "success");
+      navigate(-1);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo crear el registro", "error");
+    }
+  };
+
   return (
     <div className="w-full min-h-screen flex items-center justify-evenly py-40 bg-gray-100 px-6">
     </div>
