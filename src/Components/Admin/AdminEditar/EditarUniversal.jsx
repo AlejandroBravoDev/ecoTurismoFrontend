@@ -128,8 +128,143 @@ function Editar() {
     }
   };
 
+  const imagenPrincipal = useMemo(() => {
+    if (imagenesExistentes.length > 0) return imagenesExistentes[0];
+    if (imagenesNuevas.length > 0) return imagenesNuevas[0].preview;
+    return "";
+  }, [imagenesExistentes, imagenesNuevas]);
+
   return (
     <div className="w-full h-full flex flex-col lg:flex-row items-center justify-evenly py-10 lg:py-20 bg-gray-50 gap-10 px-4">
+      <form
+        onSubmit={handleUpdate}
+        className="rounded-xl shadow-lg w-full max-w-4xl bg-white p-6 lg:p-8 flex flex-col gap-12"
+      >
+        <h1 className="text-2xl font-bold text-[#20A217]">
+          {nombre ? `Editando: ${nombre}` : "Cargando datos..."}
+        </h1>
+
+        <div className="w-full flex flex-col gap-6 xl:max-h-120 xl:flex-wrap">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="nombre" className="font-semibold text-[#20A217]">
+              Nombre
+            </label>
+            <input
+              id="nombre"
+              type="text"
+              maxLength="45"
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 w-full lg:w-[90%] outline-none focus:ring-2 focus:ring-[#20A217]/20"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="..."
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="descripcion" className="font-semibold text-[#20A217]">
+              Descripción
+            </label>
+            <textarea
+              id="descripcion"
+              maxLength="250"
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 w-full lg:w-[90%] h-32 resize-none outline-none focus:ring-2 focus:ring-[#20A217]/20"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="..."
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="ubicacion" className="font-semibold text-[#20A217]">
+              Ubicación
+            </label>
+            <textarea
+              id="ubicacion"
+              maxLength="250"
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 w-full lg:w-[90%] h-16 resize-none outline-none focus:ring-2 focus:ring-[#20A217]/20"
+              value={ubicacion}
+              onChange={(e) => setUbicacion(e.target.value)}
+              placeholder="..."
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="coordenadas" className="font-semibold text-[#20A217]">
+              Coordenadas
+            </label>
+            <textarea
+              id="coordenadas"
+              maxLength="250"
+              className="p-3 rounded-lg bg-gray-50 border border-gray-300 w-full lg:w-[90%] h-13 resize-none outline-none focus:ring-2 focus:ring-[#20A217]/20"
+              value={coordenadas}
+              onChange={(e) => setCoordenadas(e.target.value)}
+              placeholder="..."
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold text-[#20A217]">
+              Imágenes (Máx. 3)
+            </label>
+            <div className="flex gap-4 flex-wrap mb-2">
+              {imagenesExistentes.map((img, index) => (
+                <div key={`old-${index}`} className="relative group animate-fade-in">
+                  <img
+                    src={img}
+                    className="w-20 h-20 object-cover rounded-lg border shadow-sm"
+                    alt=""
+                  />
+                  <button
+                    type="button"
+                    onClick={() => eliminarExistente(index)}
+                    className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {imagenesNuevas.map((file, index) => (
+                <div key={`new-${index}`} className="relative group animate-fade-in">
+                  <img
+                    src={file.preview}
+                    className="w-20 h-20 object-cover rounded-lg border shadow-sm"
+                    alt=""
+                  />
+                  <button
+                    type="button"
+                    onClick={() => eliminarNueva(index)}
+                    className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {imagenesExistentes.length + imagenesNuevas.length < 3 && (
+              <div
+                {...getRootProps()}
+                className="border-2 border-dashed border-gray-200 p-4 rounded-xl cursor-pointer hover:border-[#20A217] transition-all w-full lg:w-[40%] text-center bg-gray-50"
+              >
+                <input {...getInputProps()} />
+                <p className="text-xs text-gray-500">
+                  Subir imagen (
+                  {3 - (imagenesExistentes.length + imagenesNuevas.length)} restantes)
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="bg-[#20A217] hover:bg-[#1f9217] text-white rounded-xl font-bold py-3 px-8 self-start transition-colors shadow-md active:scale-95 w-full"
+        >
+          Guardar Cambios
+        </button>
+      </form>
+
+      {/* Preview aquí */}
     </div>
   );
 }
