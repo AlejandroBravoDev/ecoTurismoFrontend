@@ -26,6 +26,24 @@ function Editar() {
   const navigate = useNavigate();
   const endpoint = endpoints[tipo];
 
+  const fetchData = useCallback(async () => {
+    if (!endpoint) return;
+    try {
+      const { data } = await api.get(endpoint);
+      setNombre(data.nombre || "");
+      setDescripcion(data.descripcion || "");
+      setImagenesExistentes(data.todas_las_imagenes || []);
+      setCoordenadas(data.coordenadas);
+      setUbicacion(data.ubicacion);
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+    }
+  }, [endpoint]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
     <div className="w-full h-full flex flex-col lg:flex-row items-center justify-evenly py-10 lg:py-20 bg-gray-50 gap-10 px-4">
     </div>
