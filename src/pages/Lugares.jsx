@@ -1,5 +1,5 @@
 import React from "react";
-import useAuthRedirect from "../hooks/useAuthRedirect";
+import useAuthRedirect from "../hooks/UseAuthRedirect";
 import useLugares from "../hooks/useLugares";
 import Header from "./components/header";
 import Footer from "./components/footer";

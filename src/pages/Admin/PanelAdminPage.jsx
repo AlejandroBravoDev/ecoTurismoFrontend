@@ -1,7 +1,7 @@
 import PanelAdmin from "../../Components/Admin/PanelAdmin/PanelAdmin";
 import Footer from "../../Components/footer/index";
 import Header from "../../Components/header/index";
-import AuthRedirect from "../../hooks/useAuthRedirect";
+import AuthRedirect from "../../hooks/UseAuthRedirect";
 import AuthAdminRedirect from "../../hooks/UseAdminRedirect";
 
 function PanelAdminPage() {

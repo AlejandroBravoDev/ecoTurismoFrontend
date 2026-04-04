@@ -15,6 +15,7 @@ import PanelAdminPage from "./pages/Admin/PanelAdminPage.jsx";
 import AdminUsuariosPage from "./pages/Admin/AdminUsuariosPage.jsx";
 import EditarUsuarioPage from "./pages/Admin/EditarUsuarioPage.jsx";
 import AdminCrearPage from "./pages/Admin/AdminCrearPage.jsx";
+import EditarUniversalPage from "./pages/Admin/EditarUniversalPage.jsx";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
       <Route path="/PanelAdmin/usuarios" element={<AdminUsuariosPage />} />
       <Route path="/PanelAdmin/usuarios/:id" element={<EditarUsuarioPage />} />
       <Route path="/PanelAdmin/crear/:tipo" element={<AdminCrearPage />} />
+      <Route path="/PanelAdmin/editar/:tipo/:id" element={<EditarUniversalPage />} />
     </Routes>
   );
 }
