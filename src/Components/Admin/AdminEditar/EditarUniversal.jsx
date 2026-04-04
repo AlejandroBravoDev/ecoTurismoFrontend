@@ -264,7 +264,34 @@ function Editar() {
         </button>
       </form>
 
-      {/* Preview aquí */}
+      <div className="w-full max-w-sm sticky top-10">
+        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 transition-all duration-300">
+          <div className="h-48 bg-gray-100 flex items-center justify-center">
+            {imagenPrincipal ? (
+              <img
+                src={imagenPrincipal}
+                className="w-full h-full object-cover"
+                alt="Preview"
+              />
+            ) : (
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-12 h-12 bg-gray-200 rounded-full mb-2"></div>
+                <span className="text-xs text-gray-400 font-medium">
+                  Sin imagen
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="p-6">
+            <h2 className="text-xl font-bold text-gray-800 truncate mb-2">
+              {nombre || "Nombre del lugar"}
+            </h2>
+            <p className="text-sm text-gray h-16 overflow-hidden line-clamp-3 leading-relaxed">
+              {ubicacion || "Esperando descripción..."}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
