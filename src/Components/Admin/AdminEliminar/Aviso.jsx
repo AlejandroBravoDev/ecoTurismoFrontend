@@ -34,6 +34,22 @@ function ConfirmarEliminar({ message, onConfirm, onCancel }) {
         <p className="text-center text-lg font-medium">
           ¿Estás seguro de que deseas eliminar esto?
         </p>
+
+        <div className="flex gap-10 mt-6">
+          <button
+            className="px-4 py-2 bg-[#60a244] text-white rounded-lg hover:bg-[#4b8035] transition"
+            onClick={onCancel}
+          >
+            Cancelar
+          </button>
+
+          <button
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            onClick={onConfirm}
+          >
+            Sí, eliminar
+          </button>
+        </div>
       </div>
     </div>
   );
