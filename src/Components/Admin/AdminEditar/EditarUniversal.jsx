@@ -44,6 +44,54 @@ function Editar() {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    return () => {
+      imagenesNuevas.forEach((file) => {
+        if (file.preview) URL.revokeObjectURL(file.preview);
+      });
+    };
+  }, [imagenesNuevas]);
+
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      if (
+        acceptedFiles.length +
+          imagenesExistentes.length +
+          imagenesNuevas.length >
+        3
+      ) {
+        Swal.fire({ title: "Máximo 3 imágenes", icon: "warning" });
+        return;
+      }
+
+      const mappedFiles = acceptedFiles.map((file) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        }),
+      );
+
+      setImagenesNuevas((prev) => [...prev, ...mappedFiles]);
+    },
+    [imagenesExistentes.length, imagenesNuevas.length],
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop,
+  });
+
+  const eliminarExistente = useCallback((index) => {
+    setImagenesExistentes((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const eliminarNueva = useCallback((index) => {
+    setImagenesNuevas((prev) => {
+      const fileToRemove = prev[index];
+      if (fileToRemove?.preview) URL.revokeObjectURL(fileToRemove.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
+
   return (
     <div className="w-full h-full flex flex-col lg:flex-row items-center justify-evenly py-10 lg:py-20 bg-gray-50 gap-10 px-4">
     </div>
