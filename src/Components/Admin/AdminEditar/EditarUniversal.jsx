@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import api from "../../services/api";
-import "../panelAdmin/tailwind.css";
+import api from "../../../services/api.js";
 import Swal from "sweetalert2";
 import { useDropzone } from "react-dropzone";
 
@@ -91,6 +90,43 @@ function Editar() {
       return prev.filter((_, i) => i !== index);
     });
   }, []);
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    try {
+      const formData = new FormData();
+      formData.append("nombre", nombre);
+      formData.append("descripcion", descripcion);
+      formData.append(
+        "imagenes_existentes",
+        JSON.stringify(imagenesExistentes),
+      );
+      formData.append("ubicacion", ubicacion);
+      formData.append("coordenadas", coordenadas);
+
+      imagenesNuevas.forEach((img) =>
+        formData.append("imagenes_nuevas[]", img),
+      );
+      formData.append("_method", "PUT");
+
+      await api.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      Swal.fire({
+        title: "Cambios guardados",
+        icon: "success",
+        confirmButtonColor: "#4b8236",
+      });
+      navigate(-1);
+    } catch (err) {
+      Swal.fire({ title: "Error al actualizar", icon: "error" });
+    }
+  };
 
   return (
     <div className="w-full h-full flex flex-col lg:flex-row items-center justify-evenly py-10 lg:py-20 bg-gray-50 gap-10 px-4">
