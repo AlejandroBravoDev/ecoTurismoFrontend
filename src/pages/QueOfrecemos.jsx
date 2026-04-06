@@ -1,6 +1,6 @@
 import React from "react";
-import Header from "../Components/header/index.jsx";
-import Footer from "../Components/footer/index.jsx";
+import Header from "../Components/header/index";
+import Footer from "../Components/footer/index";
 import ScrollToTop from "../components/ScrollToTop";
 import { Link } from "react-router-dom";
 import portada from "../assets/destinosDestacados1.webp";
@@ -93,10 +93,55 @@ function QueOfrecemosPage() {
                 </div>
               ))}
             </div>
+
+            <section className="mt-16 md:mt-32 relative rounded-[30px] md:rounded-[40px] overflow-hidden group max-w-full lg:max-w-8xl mx-auto shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=2000"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                alt="CTA Background"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#1b5e20]/95 via-[#1b5e20]/80 to-[#20A217]/70 backdrop-blur-[1px]"></div>
+
+              <div className="relative p-8 md:p-16 lg:p-20 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 md:gap-10">
+                <div className="max-w-2xl text-white">
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4 pb-2">
+                    ¿Listo para tu próxima aventura?
+                  </h2>
+                  <p className="text-base md:text-lg opacity-90 mb-0">
+                    Risaralda te espera con rincones que parecen sacados de un
+                    sueño. Explora, califica y comparte la belleza natural.
+                  </p>
+                </div>
+
+                <Link to="/lugares" className="w-full md:w-auto">
+                  <button className="w-full md:w-auto whitespace-nowrap bg-white text-[#20A217] px-8 md:px-10 py-4 md:py-5 rounded-xl md:rounded-2xl font-black text-lg md:text-xl hover:bg-[#f0fdf4] hover:scale-105 md:hover:scale-110 transition-all shadow-2xl active:scale-95 flex items-center justify-center">
+                    <i className="fas fa-search-location mr-3 pr-2"></i>
+                    Explorar Lugares
+                  </button>
+                </Link>
+              </div>
+            </section>
           </div>
         </div>
       </main>
       <Footer />
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .animate-pulse-slow {
+          animation: pulse 10s infinite alternate;
+        }
+        @keyframes pulse {
+          from { transform: scale(1); }
+          to { transform: scale(1.08); }
+        }
+      `}</style>
     </>
   );
 }
