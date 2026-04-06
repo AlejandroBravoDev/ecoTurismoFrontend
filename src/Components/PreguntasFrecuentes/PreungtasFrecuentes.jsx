@@ -54,6 +54,12 @@ const faqs = [
 ];
 
 export default function FaqEcoturismo() {
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  const toggleFAQ = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
   return (
     <div className="w-full mx-auto p-6 sm:p-12 md:p-20 lg:p-40 flex flex-col gap-6 md:gap-10">
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-green-700">
@@ -61,6 +67,36 @@ export default function FaqEcoturismo() {
       </h2>
 
       <div className="flex flex-col gap-3 md:gap-2">
+        {faqs.map((faq, index) => (
+          <div
+            key={index}
+            className="border border-green-200 rounded-xl shadow-sm"
+          >
+            <button
+              onClick={() => toggleFAQ(index)}
+              className="w-full flex justify-between items-center p-4 text-left font-medium text-sm sm:text-base text-green-800 hover:bg-green-50 transition gap-4"
+            >
+              <span>{faq.question}</span>
+              <span
+                className={`text-xl transition-transform duration-300 ${
+                  activeIndex === index ? "rotate-180" : ""
+                }`}
+              >
+                +
+              </span>
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out px-4 ${
+                activeIndex === index
+                  ? "max-h-96 opacity-100 pb-4"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <p className="text-sm sm:text-base text-gray-700">{faq.answer}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
