@@ -87,7 +87,70 @@ function Contacto() {
               </h1>
             </motion.div>
 
-            {/* Tarjetas de contacto aquí */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{
+                  y: -15,
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                }}
+                className="group p-10 bg-white/5 backdrop-blur-xl rounded-[3rem] border border-white/10 transition-all duration-500"
+              >
+                <div className="w-14 h-14 bg-[#20A217] rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-green-900/40">
+                  <Mail className="text-white" size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Escríbenos
+                </h3>
+                <p className="text-slate-400 mb-8 text-sm">
+                  Respuesta garantizada en menos de 24 horas.
+                </p>
+                <p className="flex items-center gap-2 text-lg font-medium text-[#20A217] group-hover:gap-4 transition-all">
+                  ecoturismorisaralda@gmail.com
+                </p>
+              </motion.div>
+
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{
+                  y: -15,
+                  backgroundColor: "rgba(32, 162, 23, 0.1)",
+                }}
+                className="group p-10 bg-white/5 backdrop-blur-xl rounded-[3rem] border border-white/10 transition-all duration-500"
+              >
+                <div className="w-14 h-14 bg-[#20A217] rounded-2xl flex items-center justify-center mb-8 group-hover:bg-[#20A217] transition-colors">
+                  <Phone className="text-white" size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Llamada Directa
+                </h3>
+                <p className="text-slate-400 mb-8 text-sm">
+                  Lunes a Viernes, de 8:00 AM a 6:00 PM.
+                </p>
+                <p className="text-lg font-medium text-[#20A217] transition-colors">
+                  +57 300 123 4567
+                </p>
+              </motion.div>
+
+              <motion.div
+                variants={fadeInUp}
+                whileHover={{ y: -15 }}
+                className="group p-10 bg-[#20A217] rounded-[3rem] shadow-2xl shadow-green-900/20 relative overflow-hidden"
+              >
+                <Compass className="absolute -bottom-10 -right-10 text-black/10 w-40 h-40 rotate-12" />
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-8">
+                  <MapPin className="text-white" size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Visítanos
+                </h3>
+                <p className="text-green-100 mb-8 text-sm">
+                  Risaralda, Colombia. El corazón del Eje Cafetero.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Sección de valores aquí */}
           </motion.div>
         </section>
       </main>
