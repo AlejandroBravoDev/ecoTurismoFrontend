@@ -9,6 +9,9 @@ import Hospedajes from "./pages/Hospedajes.jsx";
 import VerLugares from "./pages/VerLugares.jsx";
 import PerfilUser from "./pages/PerfilUser.jsx";
 import Home from "./pages/Home.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
+import Login from "./pages/login.jsx";
+import Registro from "./pages/registro.jsx";
 
 function App() {
   return (
@@ -19,6 +22,9 @@ function App() {
       <Route path="/hospedajes" element={<Hospedajes />} />;
       <Route path="/hospedajes/:id" element={<VerHospedajes />} />
       <Route path="/perfil" element={<PerfilUser />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/registro" element={<Registro />} />
     </Routes>
   );
 }
