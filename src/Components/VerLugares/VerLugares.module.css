@@ -8,7 +8,7 @@
 
 .pageContainer {
   padding: 0;
-  background-color: #f9f9f9;
+  background-color: #F9F9F9;
 }
 
 .mainContent {
@@ -30,12 +30,20 @@
   margin: 0;
   flex-grow: 1;
 }
-
 .textWait {
   text-align: center;
   height: 450px;
   font-size: 30px;
   font-weight: 800;
+}
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.mobileActionButtons {
+  display: none;
 }
 
 .mobileSlider {
@@ -59,7 +67,6 @@
   flex-shrink: 0;
   height: 100%;
 }
-
 .sliderItem img {
   width: 100%;
   height: 100%;
@@ -85,8 +92,13 @@
   opacity: 1;
 }
 
-.prev { left: 10px; }
-.next { right: 10px; }
+.prev {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
 
 .sliderDots {
   position: absolute;
@@ -209,21 +221,23 @@
   color: var(--main-green);
   flex-shrink: 0;
 }
-
 .locationText {
   margin-top: -20px;
   display: flex;
   flex-direction: column;
   width: 100%;
 }
-
-.locationText p { margin-top: -10px; }
+.locationText p {
+  margin-top: -10px;
+}
 
 .reviewSection {
   margin-top: 2rem;
   display: flex;
   flex-direction: row;
   gap: 2em;
+  /* border-radius: 8px; */
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); */
 }
 
 .leaflet_container {
@@ -357,6 +371,9 @@
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 2rem;
+  border-bottom: none;
+  display: block;
+  padding-bottom: 0;
 }
 
 .noComments {
@@ -372,6 +389,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border: none;
+  box-shadow: none;
   position: relative;
 }
 
@@ -393,6 +412,7 @@
   border-radius: 50%;
   margin-right: 15px;
   object-fit: cover;
+  border: none;
 }
 
 .userInfo {
@@ -413,10 +433,14 @@
   display: flex;
   gap: 3px;
 }
+.opinionRating svg {
+  font-size: 14px;
+}
 
 .opinionCategoryDate {
   font-size: 13px;
   color: var(--gray-text);
+  font-weight: normal;
   margin-bottom: 10px;
   margin-top: 5px;
 }
@@ -427,6 +451,8 @@
   line-height: 1.5;
   color: #444;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .opinionImage {
@@ -448,6 +474,29 @@
   padding-top: 5px;
 }
 
+.likeContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--gray-text);
+  font-size: 1.1rem;
+}
+
+.likeButton {
+  cursor: pointer;
+  padding: 3px;
+  transition: color 0.2s;
+}
+
+.likeButton svg {
+  font-size: 1.1rem;
+}
+
+.likeCount {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 .menuIcon {
   cursor: pointer;
   color: #999;
@@ -456,7 +505,9 @@
   z-index: 20;
 }
 
-.menuIcon:hover { color: #333; }
+.menuIcon:hover {
+  color: #333;
+}
 
 .sideOptionsMenu {
   position: absolute;
@@ -484,47 +535,191 @@
   transition: background-color 0.2s;
 }
 
-.delete { color: var(--main-green); font-weight: bold; }
-.delete:hover { background: #e6ffe6; }
-.report { color: #e74c3c; }
-.report:hover { background: #fdeaea; }
+.delete {
+  color: var(--main-green);
+  font-weight: bold;
+}
+.delete:hover {
+  background: #e6ffe6;
+}
+
+.report {
+  color: #e74c3c;
+  font-weight: normal;
+}
+.report:hover {
+  background: #fdeaea;
+}
 
 h3 {
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
 
+/* tablet */
 @media (max-width: 1024px) {
-  .mainContent { max-width: 90%; padding: 1.5rem; }
-  .titleSection h1 { font-size: 2rem; }
-  .mainImage img { height: 400px; }
-  .sideImages { width: 200px; }
-  .sideImages img { height: 195px; }
+  .mainContent {
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+
+  .titleSection h1 {
+    font-size: 2rem;
+  }
+
+  .mainImage img {
+    height: 400px;
+  }
+
+  .sideImages {
+    width: 200px;
+  }
+
+  .sideImages img {
+    height: 195px;
+  }
 }
 
+/* celulares */
 @media (max-width: 768px) {
-  .mainContent { padding: 1rem; margin-top: 70px; }
-  .gallery { display: none; }
-  .mobileSlider { display: block; margin-bottom: 2rem; }
-  .titleSection { flex-direction: column; align-items: flex-start; margin-bottom: 0; }
-  .infoSection { flex-direction: column; }
-  .location { width: 100%; }
-  .leaflet_container { width: 100%; height: 25em; }
-  .reviewSection { padding: 1rem; display: flex; flex-direction: column; }
-  .reviewForm { flex-direction: column; gap: 1rem; width: 100%; }
-  .reviewForm textarea { width: 100%; height: 80px; }
-  .reviewActions { width: 100%; flex-direction: row; }
-  .reviewSection h3 { font-size: 1rem; }
-  .ratingAndButton { flex-direction: column; align-items: flex-start; gap: 1rem; width: 16em; }
-  .reviewSection .btnFilled { width: 75%; }
-  .opinionCard { flex-direction: column; padding: 15px; margin-bottom: 15px; }
-  .commentActionsBlock { flex-direction: row; justify-content: flex-end; width: 100%; order: -1; margin-bottom: 10px; }
-  .menuIcon { order: 2; }
-  .opinionContent { padding-right: 0; }
-  .opinionImage { width: 100%; height: auto; max-height: 250px; }
-  .sideOptionsMenu { top: 35px; right: 0; }
+  .mainContent {
+    padding: 1rem;
+    margin-top: 70px;
+  }
+
+  .gallery {
+    display: none;
+  }
+
+  .mobileSlider {
+    display: block;
+    margin-bottom: 2rem;
+  }
+
+  .titleSection {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  .actionButtons {
+    display: none;
+  }
+
+  .mobileActionButtons {
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  .mobileActionButtons .btnOutline,
+  .mobileActionButtons .btnFilled {
+    flex: 1;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .infoSection {
+    flex-direction: column;
+  }
+
+  .location {
+    width: 100%;
+  }
+
+  .leaflet_container {
+    width: 100%;
+    height: 25em;
+  }
+
+  .reviewSection {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .reviewForm {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .reviewForm textarea {
+    width: 100%;
+    height: 80px;
+  }
+
+  .reviewActions {
+    width: 100%;
+    flex-direction: row;
+  }
+
+  .reviewSection h3 {
+    font-size: 1rem;
+  }
+
+  .ratingAndButton {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 16em;
+  }
+
+  .reviewSection .btnFilled {
+    width: 75%;
+    max-width: none;
+  }
+
+  .opinionCard {
+    flex-direction: column;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  .commentActionsBlock {
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+    order: -1;
+    margin-bottom: 10px;
+  }
+
+  .likeContainer {
+    order: 1;
+    margin-right: auto;
+  }
+
+  .menuIcon {
+    order: 2;
+  }
+
+  .opinionContent {
+    padding-right: 0;
+  }
+
+  .opinionImage {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+  }
+
+  .sideOptionsMenu {
+    top: 35px;
+    right: 0;
+    text-align: left;
+  }
 }
 
 @media (max-width: 480px) {
-  .reviewActions { flex-direction: column; gap: 1rem; }
+  .reviewActions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .mobileActionButtons {
+    flex-direction: column;
+    gap: 1rem;
+  }
 }

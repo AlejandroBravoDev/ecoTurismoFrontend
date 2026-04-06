@@ -7,6 +7,8 @@ import imgLion from "../../assets/img6.webp";
 import imgParrot from "../../assets/img1.webp";
 import Filter from "../../utils/profanity.js";
 import Swal from "sweetalert2";
+import Mapa from "../mapa/map.jsx";
+import ScrollToTop from "./ScrollToTop.jsx";
 import {
   FaMapMarkerAlt,
   FaRegStar,
@@ -21,42 +23,20 @@ const API = import.meta.env.VITE_API_URL;
 const defaultImageUrls = [imgMeerkat, imgLion, imgParrot];
 
 const CommentActionsBlock = ({
-  commentId,
-  isOwner,
-  onDelete,
-  onReport,
-  isMenuOpen,
-  setMenuOpen,
+  commentId, isOwner, onDelete, onReport, isMenuOpen, setMenuOpen,
 }) => {
   return (
     <div className={styles.commentActionsBlock}>
       <div className={styles.menuIcon}>
-        <FaEllipsisH
-          onClick={(e) => {
-            e.stopPropagation();
-            setMenuOpen(isMenuOpen ? null : commentId);
-          }}
-        />
+        <FaEllipsisH onClick={(e) => { e.stopPropagation(); setMenuOpen(isMenuOpen ? null : commentId); }} />
         {isMenuOpen && (
           <div className={styles.sideOptionsMenu}>
             {isOwner ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(commentId);
-                }}
-                className={`${styles.sideOptionItem} ${styles.delete}`}
-              >
+              <button onClick={(e) => { e.stopPropagation(); onDelete(commentId); }} className={`${styles.sideOptionItem} ${styles.delete}`}>
                 Eliminar opinión
               </button>
             ) : (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReport(commentId);
-                }}
-                className={`${styles.sideOptionItem} ${styles.report}`}
-              >
+              <button onClick={(e) => { e.stopPropagation(); onReport(commentId); }} className={`${styles.sideOptionItem} ${styles.report}`}>
                 Denunciar opinión
               </button>
             )}
@@ -82,6 +62,7 @@ function VerLugares() {
   const [menuOpen, setMenuOpen] = useState(null);
   const [userId, setUserId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const categories = ["Familia", "Amigos", "Trabajo", "Vacaciones", "Turista"];
 
@@ -96,33 +77,19 @@ function VerLugares() {
 
   const imageSources =
     lugar?.todas_las_imagenes && lugar.todas_las_imagenes.length > 0
-      ? lugar.todas_las_imagenes
-      : defaultImageUrls;
+      ? lugar.todas_las_imagenes : defaultImageUrls;
 
   const totalSlides = imageSources.length;
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
-  };
+  const nextSlide = () => setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+  const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
 
   const fetchCurrentUser = async (token) => {
     try {
-      const res = await axios.get(`${API}/user`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCurrentUser({
-        id: res.data.id,
-        name: res.data.nombre_completo,
-        avatar: res.data.avatar_url,
-      });
+      const res = await axios.get(`${API}/user`, { headers: { Authorization: `Bearer ${token}` } });
+      setCurrentUser({ id: res.data.id, name: res.data.nombre_completo, avatar: res.data.avatar_url });
       setUserId(res.data.id);
-    } catch (err) {
-      console.error("Error al cargar usuario:", err);
-    }
+    } catch (err) { console.error("Error al cargar usuario:", err); }
   };
 
   const fetchLugar = async () => {
@@ -135,29 +102,46 @@ function VerLugares() {
       setOpinions(res.data.comentarios || []);
       if (res.data.coordenadas && typeof res.data.coordenadas === "string") {
         const coords = res.data.coordenadas.split(",").map(Number);
-        if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-          setPosition(coords);
-        }
+        if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) setPosition(coords);
       }
-    } catch (err) {
-      console.error("Error al cargar lugar:", err);
+    } catch (err) { console.error("Error al cargar lugar:", err); }
+  };
+
+  const checkFavorite = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await axios.get(`${API}/favoritos/check/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        setIsFavorite(response.data.isFavorite);
+      } catch (err) { console.error("Error al verificar favorito:", err); }
     }
+  };
+
+  const handleFavoriteToggle = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    try {
+      if (isFavorite) {
+        await axios.delete(`${API}/favoritos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        setIsFavorite(false);
+      } else {
+        await axios.post(`${API}/favoritos`, { lugar_id: id }, { headers: { Authorization: `Bearer ${token}` } });
+        setIsFavorite(true);
+      }
+    } catch (err) { Swal.fire({ title: "Error al actualizar favoritos.", icon: "error" }); }
   };
 
   const handleSubmit = async () => {
     if (!comment || comment.trim() === "") {
-      Swal.fire({ title: "no se puede publicar tú comentario", text: "El comentario está vacio", icon: "error" });
-      return;
+      Swal.fire({ title: "no se puede publicar tú comentario", text: "El comentario está vacio", icon: "error" }); return;
     }
     if (Filter.check(comment)) {
-      Swal.fire({ title: "no se puede publicar tú comentario", text: "Tú comentario tiene lenguaje inapropiado", icon: "error" });
-      return;
+      Swal.fire({ title: "no se puede publicar tú comentario", text: "Tú comentario tiene lenguaje inapropiado", icon: "error" }); return;
     }
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
     if (rating === 0) {
-      Swal.fire({ title: "no se puede publicar tú comentario", text: "Tienes que darle una calificación al lugar", icon: "error" });
-      return;
+      Swal.fire({ title: "no se puede publicar tú comentario", text: "Tienes que darle una calificación al lugar", icon: "error" }); return;
     }
     try {
       const formData = new FormData();
@@ -171,51 +155,35 @@ function VerLugares() {
       });
       const newOpinion = { ...response.data.comentario, user: currentUser, usuario_id: currentUser.id };
       setOpinions([newOpinion, ...opinions]);
-      setComment("");
-      setRating(0);
-      setSelectedImage(null);
-      setSelectedCategory("Familia");
-    } catch (err) {
-      Swal.fire({ title: "Error al enviar el comentario.", icon: "error" });
-    }
+      setComment(""); setRating(0); setSelectedImage(null); setSelectedCategory("Familia");
+    } catch (err) { Swal.fire({ title: "Error al enviar el comentario.", icon: "error" }); }
   };
 
   const deleteComment = async (commentId) => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
     try {
-      await axios.delete(`${API}/comentarios/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API}/comentarios/${commentId}`, { headers: { Authorization: `Bearer ${token}` } });
       setOpinions(opinions.filter((op) => op.id !== commentId));
       setMenuOpen(null);
       Swal.fire({ title: "Opinión eliminada.", icon: "success" });
-    } catch (err) {
-      alert("Error al eliminar.");
-    }
+    } catch (err) { alert("Error al eliminar."); }
   };
 
   const reportComment = async (commentId) => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
     try {
-      await axios.post(`${API}/comentarios/${commentId}/report`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(`${API}/comentarios/${commentId}/report`, {}, { headers: { Authorization: `Bearer ${token}` } });
       Swal.fire({ title: "Opinión denunciada.", icon: "success" });
       setMenuOpen(null);
-    } catch (err) {
-      alert("Error al denunciar.");
-    }
+    } catch (err) { alert("Error al denunciar."); }
   };
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setSelectedImage(file);
-    } else {
-      alert("Selecciona una imagen válida.");
-    }
+    if (file && file.type.startsWith("image/")) setSelectedImage(file);
+    else alert("Selecciona una imagen válida.");
   };
 
   const getDayAndMonth = (dateString) => {
@@ -228,6 +196,7 @@ function VerLugares() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     fetchLugar();
+    checkFavorite();
     if (token) fetchCurrentUser(token);
     const handleClickOutside = () => setMenuOpen(null);
     window.addEventListener("click", handleClickOutside);
@@ -237,12 +206,14 @@ function VerLugares() {
   return (
     <>
       <ScrollToTop />
-      <Header />
       <main className={styles.mainContent}>
         <section className={styles.titleSection}>
-          <h1 className="font-bold text-[#20A217]">
-            {lugar?.nombre || "Explora este destino"}
-          </h1>
+          <h1 className="font-bold text-[#20A217]">{lugar?.nombre || "Explora este destino"}</h1>
+          <div className={styles.actionButtons}>
+            <button className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`} onClick={handleFavoriteToggle}>
+              {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
+            </button>
+          </div>
         </section>
 
         <section className={styles.gallery}>
@@ -300,9 +271,7 @@ function VerLugares() {
                   <input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
                   <div className={styles.categorySelectContainer}>
                     <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.categorySelect}>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
+                      {categories.map((category) => (<option key={category} value={category}>{category}</option>))}
                     </select>
                     <FaChevronRight className={styles.categoryArrow} />
                   </div>
@@ -376,7 +345,6 @@ function VerLugares() {
           )}
         </section>
       </main>
-      <Footer />
     </>
   );
 }

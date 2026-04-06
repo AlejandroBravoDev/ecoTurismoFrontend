@@ -24,6 +24,17 @@ import EditarUsuarioPage from "./pages/Admin/EditarUsuarioPage.jsx";
 import AdminCrearPage from "./pages/Admin/AdminCrearPage.jsx";
 import EditarUniversalPage from "./pages/Admin/EditarUniversalPage.jsx";
 
+import Contacto from "./pages/Contacto";
+import QueOfrecemosPage from "./pages/QueOfrecemos";
+import FaqEcoturismoPage from "./pages/PreguntasFrecuentesPage";
+import Politicas from "./pages/Politicas.jsx";
+//importación de rutas para el admin
+import PanelAdminPage from "./pages/Admin/PanelAdminPage.jsx";
+import AdminUsuariosPage from "./pages/Admin/AdminUsuariosPage.jsx";
+import EditarUsuarioPage from "./pages/Admin/EditarUsuarioPage.jsx";
+import AdminCrearPage from "./pages/Admin/AdminCrearPage.jsx";
+import EditarUniversalPage from "./pages/Admin/EditarUniversalPage.jsx";
+
 function App() {
   return (
     <Routes>

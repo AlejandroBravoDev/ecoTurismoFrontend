@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import Header from "./header";
-import Footer from "./footer";
 import styles from "./VerHospedaje.module.css";
 import imgMeerkat from "../../assets/img4.webp";
 import imgLion from "../../assets/img6.webp";
@@ -10,6 +8,8 @@ import imgParrot from "../../assets/img1.webp";
 import useAuthRedirect from "../../hooks/useAuthRedirect";
 import Filter from "../../utils/profanity";
 import Swal from "sweetalert2";
+import Mapa from "../mapa/map";
+import ScrollToTop from "../ScrollToTop";
 import {
   FaMapMarkerAlt,
   FaRegStar,
@@ -29,26 +29,15 @@ const CommentActionsBlock = React.memo(
     return (
       <div className={styles.commentActionsBlock}>
         <div className={styles.menuIcon}>
-          <FaEllipsisH
-            onClick={(e) => {
-              e.stopPropagation();
-              setMenuOpen(isMenuOpen ? null : commentId);
-            }}
-          />
+          <FaEllipsisH onClick={(e) => { e.stopPropagation(); setMenuOpen(isMenuOpen ? null : commentId); }} />
           {isMenuOpen && (
             <div className={styles.sideOptionsMenu}>
               {isOwner ? (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onDelete(commentId); }}
-                  className={`${styles.sideOptionItem} ${styles.delete}`}
-                >
+                <button onClick={(e) => { e.stopPropagation(); onDelete(commentId); }} className={`${styles.sideOptionItem} ${styles.delete}`}>
                   Eliminar opinión
                 </button>
               ) : (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onReport(commentId); }}
-                  className={`${styles.sideOptionItem} ${styles.report}`}
-                >
+                <button onClick={(e) => { e.stopPropagation(); onReport(commentId); }} className={`${styles.sideOptionItem} ${styles.report}`}>
                   Denunciar opinión
                 </button>
               )}
@@ -66,6 +55,7 @@ function VerHospedaje() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hospedaje, setHospedaje] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagenes, setImagenes] = useState([]);
@@ -107,14 +97,10 @@ function VerHospedaje() {
 
   const fetchCurrentUser = useCallback(async (token) => {
     try {
-      const res = await axios.get(`${API}/user`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`${API}/user`, { headers: { Authorization: `Bearer ${token}` } });
       setCurrentUser({ id: res.data.id, name: res.data.nombre_completo, avatar: res.data.avatar_url });
       setUserId(res.data.id);
-    } catch (err) {
-      console.error("Error al cargar el usuario:", err);
-    }
+    } catch (err) { console.error("Error al cargar el usuario:", err); }
   }, []);
 
   const fetchHospedaje = useCallback(async () => {
@@ -131,26 +117,39 @@ function VerHospedaje() {
       setError(null);
     } catch (err) {
       setError(`No se pudo cargar el hospedaje. ${err.response?.data?.message || ""}`);
-    } finally {
-      setLoading(false);
+    } finally { setLoading(false); }
+  }, [id]);
+
+  const checkFavorite = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await axios.get(`${API}/favoritos/check/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        setIsFavorite(response.data.isFavorite);
+      } catch (err) { console.error("Error al verificar favorito:", err); }
     }
   }, [id]);
 
-  const handleSubmit = async () => {
-    if (!comment || comment.trim() === "") {
-      alert("El comentario no puede estar vacío.");
-      return;
-    }
-    if (Filter.check(comment)) {
-      alert("¡Tú comentario tiene lenguaje inapropiado!");
-      return;
-    }
+  const handleFavoriteToggle = async () => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/login"); return; }
-    if (rating === 0) {
-      alert("Por favor, selecciona una calificación.");
-      return;
-    }
+    try {
+      if (isFavorite) {
+        await axios.delete(`${API}/favoritos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        setIsFavorite(false);
+      } else {
+        await axios.post(`${API}/favoritos`, { hospedaje_id: id }, { headers: { Authorization: `Bearer ${token}` } });
+        setIsFavorite(true);
+      }
+    } catch (err) { console.error("Error al manejar favorito:", err); }
+  };
+
+  const handleSubmit = async () => {
+    if (!comment || comment.trim() === "") { alert("El comentario no puede estar vacío."); return; }
+    if (Filter.check(comment)) { alert("¡Tú comentario tiene lenguaje inapropiado!"); return; }
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/login"); return; }
+    if (rating === 0) { alert("Por favor, selecciona una calificación."); return; }
     try {
       const formData = new FormData();
       formData.append("hospedaje_id", id);
@@ -161,19 +160,36 @@ function VerHospedaje() {
       const response = await axios.post(`${API}/comentarios`, formData, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
-      const newOpinion = {
-        ...response.data.comentario,
-        rating: Number(rating),
-        user: currentUser,
-        usuario_id: currentUser.id,
-      };
+      const newOpinion = { ...response.data.comentario, rating: Number(rating), user: currentUser, usuario_id: currentUser.id };
       setOpinions([newOpinion, ...opinions]);
-      setComment("");
-      setRating(0);
-      setSelectedImage(null);
-      setSelectedCategory("Familia");
+      setComment(""); setRating(0); setSelectedImage(null); setSelectedCategory("Familia");
+    } catch (err) { alert("Error al enviar el comentario."); }
+  };
+
+  const handleFavoriteToggle = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    try {
+      if (isFavorite) {
+        await axios.delete(`${API}/favoritos/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsFavorite(false);
+      } else {
+        await axios.post(
+          `${API}/favoritos`,
+          { hospedaje_id: id },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        setIsFavorite(true);
+      }
     } catch (err) {
-      alert("Error al enviar el comentario.");
+      console.error("Error al manejar favorito:", err);
     }
   };
 
@@ -181,38 +197,27 @@ function VerHospedaje() {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/login");
     try {
-      await axios.delete(`${API}/comentarios/${commentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API}/comentarios/${commentId}`, { headers: { Authorization: `Bearer ${token}` } });
       setOpinions((prev) => prev.filter((op) => op.id !== commentId));
       setMenuOpen(null);
       Swal.fire({ title: "Opinión eliminada con éxito", icon: "success" });
-    } catch (err) {
-      alert("Error al eliminar el comentario.");
-    }
+    } catch (err) { alert("Error al eliminar el comentario."); }
   }, [navigate]);
 
   const reportComment = useCallback(async (commentId) => {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/login");
     try {
-      await axios.post(`${API}/comentarios/${commentId}/report`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(`${API}/comentarios/${commentId}/report`, {}, { headers: { Authorization: `Bearer ${token}` } });
       alert("Opinión denunciada con éxito.");
       setMenuOpen(null);
-    } catch (err) {
-      alert("Error al denunciar la opinión.");
-    }
+    } catch (err) { alert("Error al denunciar la opinión."); }
   }, [navigate]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-    if (file?.type.startsWith("image/")) {
-      setSelectedImage(file);
-    } else {
-      alert("Por favor, selecciona un archivo de imagen válido.");
-    }
+    if (file?.type.startsWith("image/")) setSelectedImage(file);
+    else alert("Por favor, selecciona un archivo de imagen válido.");
   };
 
   useEffect(() => {
@@ -233,12 +238,13 @@ function VerHospedaje() {
     const loadData = async () => {
       if (token) await fetchCurrentUser(token);
       await fetchHospedaje();
+      await checkFavorite();
     };
     loadData();
     const handleClickOutside = () => setMenuOpen(null);
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
-  }, [id, fetchCurrentUser, fetchHospedaje]);
+  }, [id, fetchCurrentUser, fetchHospedaje, checkFavorite]);
 
   if (loading) {
     return (
@@ -266,11 +272,15 @@ function VerHospedaje() {
   return (
     <>
       <ScrollToTop />
-      <Header />
       <div className={styles.pageContainer}>
         <main className={styles.mainContent}>
           <section className={styles.titleSection}>
             <h1>{hospedaje?.nombre || "Hospedaje"}</h1>
+            <div className={styles.actionButtons}>
+              <button className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`} onClick={handleFavoriteToggle}>
+                {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
+              </button>
+            </div>
           </section>
 
           <section className={styles.gallery}>
@@ -300,6 +310,12 @@ function VerHospedaje() {
             </div>
           </section>
 
+          <div className={styles.mobileActionButtons}>
+            <button className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`} onClick={handleFavoriteToggle}>
+              {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
+            </button>
+          </div>
+
           <section className={styles.infoSection}>
             <div className="w-full sm:w-[65%]">
               <h3>Acerca de</h3>
@@ -328,9 +344,7 @@ function VerHospedaje() {
                     <input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
                     <div className={styles.categorySelectContainer}>
                       <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.categorySelect}>
-                        {categories.map((category) => (
-                          <option key={category} value={category}>{category}</option>
-                        ))}
+                        {categories.map((category) => (<option key={category} value={category}>{category}</option>))}
                       </select>
                       <FaChevronRight className={styles.categoryArrow} />
                     </div>
@@ -404,7 +418,6 @@ function VerHospedaje() {
           </section>
         </main>
       </div>
-      <Footer />
     </>
   );
 }
