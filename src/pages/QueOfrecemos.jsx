@@ -59,7 +59,42 @@ function QueOfrecemosPage() {
           </div>
         </section>
 
-        {/* Tarjetas y CTA aquí */}
+        <div className="flex flex-col items-center w-full pb-10 md:pb-20">
+          <div className="max-w-7xl w-full px-4 sm:px-6 -mt-16 md:-mt-20 relative z-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 justify-items-center pb-10">
+              {servicios.map((s, idx) => (
+                <div
+                  key={idx}
+                  className="group relative bg-white rounded-[24px] md:rounded-[30px] overflow-hidden shadow-2xl hover:shadow-[#20A217]/20 transition-all duration-500 hover:-translate-y-4 w-full max-w-[380px]"
+                  style={{ animationDelay: `${s.delay}ms` }}
+                >
+                  <div className="h-56 md:h-64 overflow-hidden relative">
+                    <img
+                      src={s.image}
+                      alt={s.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    <div className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 md:w-14 md:h-14 bg-white/90 backdrop-blur rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl">
+                      <i
+                        className={`${s.icon} text-xl md:text-2xl text-[#20A217]`}
+                      ></i>
+                    </div>
+                  </div>
+                  <div className="p-6 md:p-8">
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4 group-hover:text-[#20A217] transition-colors">
+                      {s.title}
+                    </h3>
+                    <p className="text-sm md:text-gray-600 leading-relaxed mb-4 pb-5">
+                      {s.desc}
+                    </p>
+                    <div className="w-12 h-1 bg-[#20A217] rounded-full transition-all duration-500 group-hover:w-full"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
       <Footer />
     </>
