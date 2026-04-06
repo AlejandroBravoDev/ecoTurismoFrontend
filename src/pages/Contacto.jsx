@@ -150,7 +150,34 @@ function Contacto() {
               </motion.div>
             </div>
 
-            {/* Sección de valores aquí */}
+            <motion.div
+              variants={fadeInUp}
+              className="grid grid-cols-1 md:grid-cols-3 gap-12 py-20 border-t border-white/10"
+            >
+              <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
+                <Leaf className="text-[#20A217]" size={32} />
+                <h4 className="font-bold text-white text-xl">
+                  100% Sostenible
+                </h4>
+                <p className="text-slate-400">
+                  Proyectos enfocados en la conservación del ecosistema local.
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
+                <ShieldCheck className="text-[#20A217]" size={32} />
+                <h4 className="font-bold text-white text-xl">Viaje Seguro</h4>
+                <p className="text-slate-400">
+                  Contamos con todos los registros nacionales de turismo.
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center md:items-start md:text-left gap-4">
+                <Globe className="text-[#20A217]" size={32} />
+                <h4 className="font-bold text-white text-xl">Impacto Local</h4>
+                <p className="text-slate-400">
+                  Apoyamos directamente a las comunidades rurales de la región.
+                </p>
+              </div>
+            </motion.div>
           </motion.div>
         </section>
       </main>
