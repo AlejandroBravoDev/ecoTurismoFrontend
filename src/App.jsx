@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 //Importacion de componentes
-import VerHospedajes from "/components/VerHospedajes/VerHospedajes.jsx";
+import VerHospedajes from "./components/VerHospedajes/VerHospedajes.jsx";
 
 //Importacion de pages
 import Lugares from "./pages/Lugares.jsx";
@@ -24,18 +24,8 @@ import EditarUsuarioPage from "./pages/Admin/EditarUsuarioPage.jsx";
 import AdminCrearPage from "./pages/Admin/AdminCrearPage.jsx";
 import EditarUniversalPage from "./pages/Admin/EditarUniversalPage.jsx";
 
-import Contacto from "./pages/Contacto";
-import QueOfrecemosPage from "./pages/QueOfrecemos";
-import FaqEcoturismoPage from "./pages/PreguntasFrecuentesPage";
-import Politicas from "./pages/Politicas.jsx";
-//importación de rutas para el admin
-import PanelAdminPage from "./pages/Admin/PanelAdminPage.jsx";
-import AdminUsuariosPage from "./pages/Admin/AdminUsuariosPage.jsx";
-import EditarUsuarioPage from "./pages/Admin/EditarUsuarioPage.jsx";
-import AdminCrearPage from "./pages/Admin/AdminCrearPage.jsx";
-import EditarUniversalPage from "./pages/Admin/EditarUniversalPage.jsx";
 
-function App() {
+function Rutas() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -67,5 +57,19 @@ function App() {
     </Routes>
   );
 }
+
+function App() {
+  return (
+    <BrowserRouter>
+
+      <div className="app">
+        <main className="bg-[#f9f9f9]">
+          <Rutas />
+        </main>
+      </div>
+    </BrowserRouter>
+  );
+}
+
 
 export default App;

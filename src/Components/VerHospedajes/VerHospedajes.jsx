@@ -29,15 +29,32 @@ const CommentActionsBlock = React.memo(
     return (
       <div className={styles.commentActionsBlock}>
         <div className={styles.menuIcon}>
-          <FaEllipsisH onClick={(e) => { e.stopPropagation(); setMenuOpen(isMenuOpen ? null : commentId); }} />
+          <FaEllipsisH
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(isMenuOpen ? null : commentId);
+            }}
+          />
           {isMenuOpen && (
             <div className={styles.sideOptionsMenu}>
               {isOwner ? (
-                <button onClick={(e) => { e.stopPropagation(); onDelete(commentId); }} className={`${styles.sideOptionItem} ${styles.delete}`}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(commentId);
+                  }}
+                  className={`${styles.sideOptionItem} ${styles.delete}`}
+                >
                   Eliminar opinión
                 </button>
               ) : (
-                <button onClick={(e) => { e.stopPropagation(); onReport(commentId); }} className={`${styles.sideOptionItem} ${styles.report}`}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReport(commentId);
+                  }}
+                  className={`${styles.sideOptionItem} ${styles.report}`}
+                >
                   Denunciar opinión
                 </button>
               )}
@@ -59,7 +76,9 @@ function VerHospedaje() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imagenes, setImagenes] = useState([]);
-  const [position, setPosition] = useState([4.81415861127678, -75.71023222513418]);
+  const [position, setPosition] = useState([
+    4.81415861127678, -75.71023222513418,
+  ]);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
@@ -70,7 +89,10 @@ function VerHospedaje() {
   const [userId, setUserId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const categories = useMemo(() => ["Familia", "Amigos", "Trabajo", "Vacaciones", "Turista"], []);
+  const categories = useMemo(
+    () => ["Familia", "Amigos", "Trabajo", "Vacaciones", "Turista"],
+    [],
+  );
 
   const calificacionComentarios = () => {
     if (rating === 5) return "Excelente";
@@ -81,7 +103,10 @@ function VerHospedaje() {
   };
 
   const imageSources = useMemo(
-    () => hospedaje?.imagenes && hospedaje.imagenes.length > 0 ? hospedaje.imagenes : defaultImageUrls,
+    () =>
+      hospedaje?.imagenes && hospedaje.imagenes.length > 0
+        ? hospedaje.imagenes
+        : defaultImageUrls,
     [hospedaje],
   );
 
@@ -97,10 +122,18 @@ function VerHospedaje() {
 
   const fetchCurrentUser = useCallback(async (token) => {
     try {
-      const res = await axios.get(`${API}/user`, { headers: { Authorization: `Bearer ${token}` } });
-      setCurrentUser({ id: res.data.id, name: res.data.nombre_completo, avatar: res.data.avatar_url });
+      const res = await axios.get(`${API}/user`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCurrentUser({
+        id: res.data.id,
+        name: res.data.nombre_completo,
+        avatar: res.data.avatar_url,
+      });
       setUserId(res.data.id);
-    } catch (err) { console.error("Error al cargar el usuario:", err); }
+    } catch (err) {
+      console.error("Error al cargar el usuario:", err);
+    }
   }, []);
 
   const fetchHospedaje = useCallback(async () => {
@@ -116,40 +149,46 @@ function VerHospedaje() {
       setImagenes(res.data.todas_las_imagenes);
       setError(null);
     } catch (err) {
-      setError(`No se pudo cargar el hospedaje. ${err.response?.data?.message || ""}`);
-    } finally { setLoading(false); }
+      setError(
+        `No se pudo cargar el hospedaje. ${err.response?.data?.message || ""}`,
+      );
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
   const checkFavorite = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await axios.get(`${API}/favoritos/check/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await axios.get(`${API}/favoritos/check/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setIsFavorite(response.data.isFavorite);
-      } catch (err) { console.error("Error al verificar favorito:", err); }
+      } catch (err) {
+        console.error("Error al verificar favorito:", err);
+      }
     }
   }, [id]);
 
-  const handleFavoriteToggle = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) { navigate("/login"); return; }
-    try {
-      if (isFavorite) {
-        await axios.delete(`${API}/favoritos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-        setIsFavorite(false);
-      } else {
-        await axios.post(`${API}/favoritos`, { hospedaje_id: id }, { headers: { Authorization: `Bearer ${token}` } });
-        setIsFavorite(true);
-      }
-    } catch (err) { console.error("Error al manejar favorito:", err); }
-  };
-
   const handleSubmit = async () => {
-    if (!comment || comment.trim() === "") { alert("El comentario no puede estar vacío."); return; }
-    if (Filter.check(comment)) { alert("¡Tú comentario tiene lenguaje inapropiado!"); return; }
+    if (!comment || comment.trim() === "") {
+      alert("El comentario no puede estar vacío.");
+      return;
+    }
+    if (Filter.check(comment)) {
+      alert("¡Tú comentario tiene lenguaje inapropiado!");
+      return;
+    }
     const token = localStorage.getItem("token");
-    if (!token) { navigate("/login"); return; }
-    if (rating === 0) { alert("Por favor, selecciona una calificación."); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    if (rating === 0) {
+      alert("Por favor, selecciona una calificación.");
+      return;
+    }
     try {
       const formData = new FormData();
       formData.append("hospedaje_id", id);
@@ -158,12 +197,25 @@ function VerHospedaje() {
       formData.append("category", selectedCategory);
       if (selectedImage) formData.append("image", selectedImage);
       const response = await axios.post(`${API}/comentarios`, formData, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
       });
-      const newOpinion = { ...response.data.comentario, rating: Number(rating), user: currentUser, usuario_id: currentUser.id };
+      const newOpinion = {
+        ...response.data.comentario,
+        rating: Number(rating),
+        user: currentUser,
+        usuario_id: currentUser.id,
+      };
       setOpinions([newOpinion, ...opinions]);
-      setComment(""); setRating(0); setSelectedImage(null); setSelectedCategory("Familia");
-    } catch (err) { alert("Error al enviar el comentario."); }
+      setComment("");
+      setRating(0);
+      setSelectedImage(null);
+      setSelectedCategory("Familia");
+    } catch (err) {
+      alert("Error al enviar el comentario.");
+    }
   };
 
   const handleFavoriteToggle = async () => {
@@ -193,26 +245,42 @@ function VerHospedaje() {
     }
   };
 
-  const deleteComment = useCallback(async (commentId) => {
-    const token = localStorage.getItem("token");
-    if (!token) return navigate("/login");
-    try {
-      await axios.delete(`${API}/comentarios/${commentId}`, { headers: { Authorization: `Bearer ${token}` } });
-      setOpinions((prev) => prev.filter((op) => op.id !== commentId));
-      setMenuOpen(null);
-      Swal.fire({ title: "Opinión eliminada con éxito", icon: "success" });
-    } catch (err) { alert("Error al eliminar el comentario."); }
-  }, [navigate]);
+  const deleteComment = useCallback(
+    async (commentId) => {
+      const token = localStorage.getItem("token");
+      if (!token) return navigate("/login");
+      try {
+        await axios.delete(`${API}/comentarios/${commentId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setOpinions((prev) => prev.filter((op) => op.id !== commentId));
+        setMenuOpen(null);
+        Swal.fire({ title: "Opinión eliminada con éxito", icon: "success" });
+      } catch (err) {
+        alert("Error al eliminar el comentario.");
+      }
+    },
+    [navigate],
+  );
 
-  const reportComment = useCallback(async (commentId) => {
-    const token = localStorage.getItem("token");
-    if (!token) return navigate("/login");
-    try {
-      await axios.post(`${API}/comentarios/${commentId}/report`, {}, { headers: { Authorization: `Bearer ${token}` } });
-      alert("Opinión denunciada con éxito.");
-      setMenuOpen(null);
-    } catch (err) { alert("Error al denunciar la opinión."); }
-  }, [navigate]);
+  const reportComment = useCallback(
+    async (commentId) => {
+      const token = localStorage.getItem("token");
+      if (!token) return navigate("/login");
+      try {
+        await axios.post(
+          `${API}/comentarios/${commentId}/report`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        alert("Opinión denunciada con éxito.");
+        setMenuOpen(null);
+      } catch (err) {
+        alert("Error al denunciar la opinión.");
+      }
+    },
+    [navigate],
+  );
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -229,7 +297,10 @@ function VerHospedaje() {
   const getDayAndMonth = (dateString) => {
     const date = new Date(dateString);
     const options = { weekday: "long", day: "numeric", month: "long" };
-    let UpperDate = date.toLocaleDateString("es-ES", options).replace(/de /g, "").toLowerCase();
+    let UpperDate = date
+      .toLocaleDateString("es-ES", options)
+      .replace(/de /g, "")
+      .toLowerCase();
     return UpperDate.charAt(0).toUpperCase() + UpperDate.slice(1);
   };
 
@@ -260,8 +331,29 @@ function VerHospedaje() {
     return (
       <div className={styles.pageContainer}>
         <main className={styles.mainContent}>
-          <p style={{ textAlign: "center", padding: "50px", fontSize: "1.2rem", color: "#e74c3c" }}>{error}</p>
-          <button onClick={() => navigate("/hospedajes")} style={{ display: "block", margin: "20px auto", padding: "12px 30px", backgroundColor: "#4b8236", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>
+          <p
+            style={{
+              textAlign: "center",
+              padding: "50px",
+              fontSize: "1.2rem",
+              color: "#e74c3c",
+            }}
+          >
+            {error}
+          </p>
+          <button
+            onClick={() => navigate("/hospedajes")}
+            style={{
+              display: "block",
+              margin: "20px auto",
+              padding: "12px 30px",
+              backgroundColor: "#4b8236",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
             Volver a hospedajes
           </button>
         </main>
@@ -277,7 +369,10 @@ function VerHospedaje() {
           <section className={styles.titleSection}>
             <h1>{hospedaje?.nombre || "Hospedaje"}</h1>
             <div className={styles.actionButtons}>
-              <button className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`} onClick={handleFavoriteToggle}>
+              <button
+                className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`}
+                onClick={handleFavoriteToggle}
+              >
                 {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
               </button>
             </div>
@@ -285,33 +380,80 @@ function VerHospedaje() {
 
           <section className={styles.gallery}>
             <div className={styles.mainImage}>
-              <img src={imagenes[0] || noImagen} alt={hospedaje?.nombre} onError={(e) => { e.target.src = noImagen; }} />
+              <img
+                src={imagenes[0] || noImagen}
+                alt={hospedaje?.nombre}
+                onError={(e) => {
+                  e.target.src = noImagen;
+                }}
+              />
             </div>
             <div className={styles.sideImages}>
-              <img src={imagenes[1] || noImagen} alt={hospedaje?.nombre} onError={(e) => { e.target.src = defaultImageUrls[1]; }} />
-              <img src={imagenes[2] || noImagen} alt={hospedaje?.nombre} onError={(e) => { e.target.src = defaultImageUrls[2]; }} />
+              <img
+                src={imagenes[1] || noImagen}
+                alt={hospedaje?.nombre}
+                onError={(e) => {
+                  e.target.src = defaultImageUrls[1];
+                }}
+              />
+              <img
+                src={imagenes[2] || noImagen}
+                alt={hospedaje?.nombre}
+                onError={(e) => {
+                  e.target.src = defaultImageUrls[2];
+                }}
+              />
             </div>
           </section>
 
           <section className={styles.mobileSlider}>
-            <div className={styles.sliderTrack} style={{ transform: `translateX(-${currentSlide * (100 / totalSlides)}%)` }}>
+            <div
+              className={styles.sliderTrack}
+              style={{
+                transform: `translateX(-${currentSlide * (100 / totalSlides)}%)`,
+              }}
+            >
               {imageSources.map((imgSrc, index) => (
                 <div key={index} className={styles.sliderItem}>
-                  <img src={imgSrc} alt={`${hospedaje?.nombre} - ${index + 1}`} onError={(e) => { e.target.src = defaultImageUrls[index % defaultImageUrls.length]; }} />
+                  <img
+                    src={imgSrc}
+                    alt={`${hospedaje?.nombre} - ${index + 1}`}
+                    onError={(e) => {
+                      e.target.src =
+                        defaultImageUrls[index % defaultImageUrls.length];
+                    }}
+                  />
                 </div>
               ))}
             </div>
-            <button className={`${styles.sliderControl} ${styles.prev}`} onClick={prevSlide}><FaChevronLeft size={24} /></button>
-            <button className={`${styles.sliderControl} ${styles.next}`} onClick={nextSlide}><FaChevronRight size={24} /></button>
+            <button
+              className={`${styles.sliderControl} ${styles.prev}`}
+              onClick={prevSlide}
+            >
+              <FaChevronLeft size={24} />
+            </button>
+            <button
+              className={`${styles.sliderControl} ${styles.next}`}
+              onClick={nextSlide}
+            >
+              <FaChevronRight size={24} />
+            </button>
             <div className={styles.sliderDots}>
               {imageSources.map((_, index) => (
-                <span key={index} className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ""}`} onClick={() => setCurrentSlide(index)} />
+                <span
+                  key={index}
+                  className={`${styles.dot} ${index === currentSlide ? styles.activeDot : ""}`}
+                  onClick={() => setCurrentSlide(index)}
+                />
               ))}
             </div>
           </section>
 
           <div className={styles.mobileActionButtons}>
-            <button className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`} onClick={handleFavoriteToggle}>
+            <button
+              className={`${styles.btnFilled} ${isFavorite ? styles.active : ""}`}
+              onClick={handleFavoriteToggle}
+            >
               {isFavorite ? <FaStar /> : <FaRegStar />} Favoritas
             </button>
           </div>
@@ -336,15 +478,34 @@ function VerHospedaje() {
               <h2>¡Cuéntanos cómo fue tu experiencia!</h2>
               <div className={styles.reviewFormContainer}>
                 <div className={styles.reviewForm}>
-                  <textarea placeholder="Cuéntanos aquí" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={5000} />
+                  <textarea
+                    placeholder="Cuéntanos aquí"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    maxLength={5000}
+                  />
                   <div className={styles.reviewActions}>
                     <label htmlFor="imageUpload" className={styles.btnOutline}>
                       <MdAddPhotoAlternate /> Adjunta una imagen
                     </label>
-                    <input id="imageUpload" type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                    <input
+                      id="imageUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      style={{ display: "none" }}
+                    />
                     <div className={styles.categorySelectContainer}>
-                      <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.categorySelect}>
-                        {categories.map((category) => (<option key={category} value={category}>{category}</option>))}
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className={styles.categorySelect}
+                      >
+                        {categories.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
                       </select>
                       <FaChevronRight className={styles.categoryArrow} />
                     </div>
@@ -354,7 +515,10 @@ function VerHospedaje() {
               {selectedImage && (
                 <div className={styles.imagePreview}>
                   <p>Imagen seleccionada: {selectedImage.name}</p>
-                  <img src={URL.createObjectURL(selectedImage)} alt="Vista previa" />
+                  <img
+                    src={URL.createObjectURL(selectedImage)}
+                    alt="Vista previa"
+                  />
                 </div>
               )}
               <div className={styles.ratingAndButton}>
@@ -367,16 +531,32 @@ function VerHospedaje() {
                       const Icon = isFilled ? FaStar : FaRegStar;
                       return (
                         <label key={index}>
-                          <input type="radio" name="rating" value={ratingValue} onClick={() => setRating(ratingValue)} style={{ display: "none" }} />
-                          <Icon className={styles.heartIcon} color="#ffde21" size={40} onMouseEnter={() => setHover(ratingValue)} onMouseLeave={() => setHover(0)} />
+                          <input
+                            type="radio"
+                            name="rating"
+                            value={ratingValue}
+                            onClick={() => setRating(ratingValue)}
+                            style={{ display: "none" }}
+                          />
+                          <Icon
+                            className={styles.heartIcon}
+                            color="#ffde21"
+                            size={40}
+                            onMouseEnter={() => setHover(ratingValue)}
+                            onMouseLeave={() => setHover(0)}
+                          />
                         </label>
                       );
                     })}
-                    <span className={styles.ratingText}>{calificacionComentarios()}</span>
+                    <span className={styles.ratingText}>
+                      {calificacionComentarios()}
+                    </span>
                   </div>
                 </div>
               </div>
-              <button className={styles.btnFilled} onClick={handleSubmit}>Enviar opinión</button>
+              <button className={styles.btnFilled} onClick={handleSubmit}>
+                Enviar opinión
+              </button>
             </div>
           </section>
 
@@ -389,19 +569,39 @@ function VerHospedaje() {
                 <div key={op.id} className={styles.opinionCard}>
                   <div className={styles.opinionContent}>
                     <div className={styles.opinionHeader}>
-                      <img src={op.user?.avatar || "https://via.placeholder.com/50"} alt={op.user?.name} className={styles.userAvatar} />
+                      <img
+                        src={
+                          op.user?.avatar || "https://via.placeholder.com/50"
+                        }
+                        alt={op.user?.name}
+                        className={styles.userAvatar}
+                      />
                       <div className={styles.userInfo}>
                         <h4>{op.user?.name || "Usuario Anónimo"}</h4>
                         <div className={styles.opinionRating}>
-                          {[...Array(op.rating)].map((_, idx) => (<FaStar key={idx} color="#ffde21" size={14} />))}
-                          {[...Array(5 - op.rating)].map((_, idx) => (<FaRegStar key={idx + op.rating} color="#ffde21" size={14} />))}
+                          {[...Array(op.rating)].map((_, idx) => (
+                            <FaStar key={idx} color="#ffde21" size={14} />
+                          ))}
+                          {[...Array(5 - op.rating)].map((_, idx) => (
+                            <FaRegStar
+                              key={idx + op.rating}
+                              color="#ffde21"
+                              size={14}
+                            />
+                          ))}
                         </div>
                       </div>
                     </div>
-                    <p className={styles.opinionCategoryDate}>{getDayAndMonth(op.created_at)} • {op.category}</p>
+                    <p className={styles.opinionCategoryDate}>
+                      {getDayAndMonth(op.created_at)} • {op.category}
+                    </p>
                     <p className={styles.opinionText}>{op.contenido}</p>
                     {op.image_path && (
-                      <img src={op.image_url || `${API}/storage/${op.image_path}`} alt="Comentario" className={styles.opinionImage} />
+                      <img
+                        src={op.image_url || `${API}/storage/${op.image_path}`}
+                        alt="Comentario"
+                        className={styles.opinionImage}
+                      />
                     )}
                   </div>
                   <CommentActionsBlock

@@ -1,4 +1,4 @@
-import FaqEcoturismo from "../Components/PreguntasFrecuentes/PreguntasFrecuentes";
+import FaqEcoturismo from "../Components/PreguntasFrecuentes/PreungtasFrecuentes";
 import Header from "../Components/header/index";
 import Footer from "../Components/footer/index";
 

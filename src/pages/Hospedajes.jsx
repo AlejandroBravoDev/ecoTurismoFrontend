@@ -1,10 +1,10 @@
 import React from "react";
-import useAuthRedirect from "../hooks/UseAuthRedirect";
+import useAuthRedirect from "../hooks/useAuthRedirect";
 import useHospedajes from "../hooks/useHospedajes";
-import Header from "./components/header";
-import Footer from "./components/footer";
-import SearchBar from "./components/Hospedajes/SearchBar";
-import Cards from "./components/Hospedajes/Cards";
+import Header from "../components/header";
+import Footer from "../components/footer";
+import SearchBar from "../components/Hospedajes/SearchBar";
+import Cards from "../components/Hospedajes/Cards";
 import fondoHospedajes from "../assets/destinosDestacados3.webp";
 import ScrollToTop from "../components/ScrollToTop";
 
