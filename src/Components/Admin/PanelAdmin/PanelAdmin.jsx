@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import imgHospedajes from "../../assets/img4.webp";
-import imgLugares from "../../assets/img1.webp";
-import imgUsuarios from "../../assets/img6.webp";
+import imgHospedajes from "../../../assets/img4.webp";
+import imgLugares from "../../../assets/img1.webp";
+import imgUsuarios from "../../../assets/img6.webp";
 
 const containerVariants = {
   hidden: { opacity: 0 },

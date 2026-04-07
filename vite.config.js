@@ -1,7 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+  plugins: [react(), tailwindcss()],
+  server: {
+    hmr: {
+      overlay: false,
+    },
+    watch: {
+      ignored: ["**/src/components/mapa/mapaRisaralda.jsx"],
+    },
+    proxy: {
+      // Si la ruta comienza con /api, redirige la petición a Laravel
+      "/api": {
+        target: "http://127.0.0.1:8000",
+        changeOrigin: true, // Importante para que el Host se cambie a 127.0.0.1:8000
+        rewrite: (path) => path.replace(/^\/api/, ""), // Mantiene la ruta /api 
+      },
+    },
+  },
+});

@@ -1,10 +1,10 @@
 import React from "react";
-import useAuthRedirect from "../hooks/UseAuthRedirect";
+import useAuthRedirect from "../hooks/useAuthRedirect";
 import useLugares from "../hooks/useLugares";
-import Header from "./components/header";
-import Footer from "./components/footer";
-import SearchBar from "./components/Lugares/SearchBar";
-import Cards from "./components/Lugares/Cards";
+import Header from "../components/header";
+import Footer from "../components/footer";
+import SearchBar from "../components/Lugares/SearchBar";
+import Cards from "../components/Lugares/Cards";
 import fondoLugares from "../assets/portadaProyecto.webp";
 import ScrollToTop from "../components/ScrollToTop";
 
